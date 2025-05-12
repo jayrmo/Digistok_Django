@@ -1,0 +1,86 @@
+Criação projeto Django
+1- Cria a .venv
+2- Instala o Django
+3- cria o projeto com: django-admin startprojetct nomedoprojeto
+
+----------------------------------------------------
+Criação de superuser para area admin
+1-python manage.py createsuperuser(foi criado user django, django@gmail.com, senha django)
+2-Para os modelos criados serem gerenciados pelo admin tem q adicionar no arquivo admin após importa-lós
+   ´´´ 
+    from .models import *
+
+    admin.site.register(nome_modelo_tabela)
+    ´´´
+----------------------------------------------------
+Criação de app
+1- cria o app na pasta do projeto com: python manage.py startprojetct nomedoapp
+2- Adiciona o app no arquivo settings.py na lista INSTALLED_APPS=['nomedoapp']
+
+----------------------------------------------------
+Linkar app
+1- Adiciona o include no import do arquivo urls do projeto: from django.urls import path, include
+2- cria o path no arquivo urls.py do projeto apontando para urls do app: path('', include('nomedoapp.urls'))
+3- Cria o urls.py no app com a estrutura parecida do urls do projeto
+    ´´´
+    from django.urls import path
+    from .views import * #importa todas as funções de dentro do arquivo views
+
+    urlpatterns = [
+        path('', homepage, name='homepage'),#cria o link da página homepage(q é def em views).O name é um identificador q aponta para esse caminho dentro da ''.Nesse caso o caminho é o dominio puro..
+    ]
+    ´´´
+----------------------------------------------------
+Para adiconar nova página:
+1- Cria o link em urls 
+2- Cria a função em views #função serve para direcionar para página html do site
+3- Cria a página em templates #armazena a página html
+
+----------------------------------------------------
+Páginas Dinamicas:
+1-Criar o base.html com a estrutura comum a todas as Páginas
+2-Adicionar as tags {% block body %}{% endblock %} ( tag q será usada nas páginas do site )
+3-Em cada página do site importar o base.html atravé de {% extends 'base.html'%}
+4-Em cada página do site colocar o conteudo dentro das tags do body  {% block body %}{% endblock %}
+
+----------------------------------------------------
+Arquivos Estaticos:
+1-Criar a estrutura de pasta static dentro do projeto
+2-Adicionar o diretorio da pasta static no settings para ser encontrado.
+    2.1-importa a biblioteca os (import os) no settings
+    2.2-adiciona o texto abaixo
+    STATICFILES_DIRS = [
+        os.path.join(BASE_DIR, 'static') 
+        #BASE_DIR é uma variavel criada automatico com o caminho do projeto.
+        # 'static' é a pasta dos arquivos estaticos do projeto.
+]
+3-No base.html adicona a tag de carregar o static {% load static %} no inicio.
+4-Ainda no base.html adiciona o link
+    <link rel="stylesheet" type="text/css" href="{% static 'css/main.css' %}" >
+    #Usa o href com a tag para o django encontrar a pasta static mesmo se mudar de local ou alterar a variavel STATIC_URL do settings.
+5-Em todos as páginas html carrega com o {% load static %} na linha após o extends  
+6- Agora sempre q estilizar o main.css, todas as páginas irão receber essa atualização pegando o link do base e carregando atravês do load.
+
+7-O titulo da página é definido no views e usado a variavel no html para chamar {{title}}
+8-A barra lateral é chamada através do include no html base
+
+
+----------------------------------------------------
+Criar o ToString para exibir valores personalizados em cada model
+1-def __str__(self):
+        return self.nome
+
+----------------------------------------------------
+Arquivo Imagem em Db
+1- Em model usa o tipo models.ImageField()
+2- instalar : python3 -m pip install pillow
+3- Criar a avariavel MEDIA_ROOT = os.path.join(BASE_DIR, 'static/images') #coloca o caminho pra armazenar
+4- Criar a varivael MEDIA_URL = "imagens/" #coloca o nome que vai aparecer no navegador 
+5- NO URLs do projeto e não do app importa a pasta static e usa a função:
+    ´´´
+    from django.conf.urls.static import static
+    from django.conf import settings
+    
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) #colocado logo abaixo da lista já criada urlpatterns
+    ´´´
+    

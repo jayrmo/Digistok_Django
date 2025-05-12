@@ -1,0 +1,88 @@
+Acesso PostGre na WSL ubuntu
+Banco: noticia
+use: noticia
+senha: noticia
+
+
+-------------------------------------------------
+Comando para liberar acesso do shell wind
+Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned
+.venv\Scripts\activate
+
+
+
+#Acessa o terminal shell_plus
+python manage.py shell_plus
+-----------------------------------------------------
+#acessar o ubuntu no win
+WSL
+#Acessa com usuario do postgres: sudo -i -u postgres
+#Entra no banco:  psql
+#Libera acesso ao db exter:     sudo nano /etc/postgresql/15/main/postgresql.conf
+#Altera:                        listen_addresses = '*'
+#Libera bloco de ip:            sudo nano /etc/postgresql/14/main/pg_hba.conf
+#No final do arquivo coloca:    host    all             all             172.0.0.0/8           md5
+
+-----------------------------------------------------------------
+#garante permissão para banco django ao user django:
+GRANT ALL PRIVILEGES ON DATABASE django TO django;
+#Entra no banco django
+\c django
+#Dar permissão para user django ao schema public 
+GRANT ALL ON SCHEMA public TO django;
+#verifica se pegou
+\dn+
+#Força a permissão caso não tenha pegado.
+ALTER SCHEMA public OWNER TO filmes;
+#sair do postgres
+\q
+#sudo service postgresql restart
+
+___________________________________
+Dar permissão ao banco
+sudo -i -u postgres
+psql -U postgres -d nome_do_banco
+GRANT CREATE ON SCHEMA public TO meu_usuario;
+GRANT USAGE ON SCHEMA public TO meu_usuario;
+ALTER ROLE meu_usuario WITH LOGIN;
+
+
+-----------------------------------------
+#ver tabelas
+\dt
+#ver estrutura da tabelas
+\d nome_tabela
+#ver dados da tabelas
+SELECT * FROM nome_tabela;
+
+
+
+
+  
+
+-----------Comandos ORM--------- 
+Entrar no terminal: python manage.py shell_plus
+Client.objects.all()
+Client.objects.filter(nome='Ana Sousa')
+Client.objects.filter(full_name__icontains ="Carla")
+Pedido.objects.filter(criado_em__year=2024)
+Client.objects.get(full_name="Daniel Pereira") #mostra apenas um resultado dando erro se tiver mais
+Client.objects.create(full_name="João Silva", email="joaosilva@gamil.com",is_active=True)
+Product.objects.filter(full_name="Teclado").delete()
+Pedido.objects.create(cliente=Client.objects.filter(full_name="João Silva").first(),produto=Product.objects.filter(full_name="Teclado").first(),quantidade=1)
+Product.objects.filter(price__gt=500)
+Pedido.objects.count()
+Pedido.objects.order_by("criado_em") #ordem crescente
+Pedido.objects.order_by("-criado_em")#ordem descrescente
+Client.objects.annotate(total_pedidos=Count("pedido"))
+for i in Client.objects.annotate(total_pedidos=Count("pedido")):print(i.full_name, i.total_pedidos)
+Product.objects.annotate(total_produtos=Count('full_name')).values("full_name", "total_produtos")
+for i in Product.objects.annotate(total_produtos=Count('full_name')).values("full_name", "total_produtos"): print(i)
+
+
+
+
+
+--------------------------
+Criação de superuser para area admin
+1-python manage.py createsuperuser(foi criado user django, django@gmail.com, senha django)
