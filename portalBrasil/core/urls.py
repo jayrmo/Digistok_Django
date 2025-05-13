@@ -4,9 +4,8 @@ from django.urls import path
 from .views import * 
 
 urlpatterns = [
-    # path('noticia/login/', login, name='login'),
-    path('login/', LoginView.as_view(),
-name='login'),
+    path('', HomePage.as_view(), name='homepage'),
+    path('login/', Login.as_view(),name='login'),
     path('login/', auth_views.LogoutView.as_view(), name='logout'),
 
 

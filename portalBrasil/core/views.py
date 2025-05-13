@@ -14,7 +14,13 @@ import datetime
 #     return render(request, 'login.html',context)
 
 
-class LoginView(View):
+class HomePage(View):
+    def get(self, request):
+        return render(request, 'home.html') 
+
+
+
+class Login(View):
     def get(self, request):
         print(f'dentro do get')
         return render(request, 'login.html')
@@ -27,13 +33,12 @@ class LoginView(View):
         
         if user is not None:
             login(request, user)
-            return redirect('home')
+            return redirect('')
         else:
-            # views.py
             messages.error(request, 'Usuário ou senha inválidos')
             if messages.get_messages(request):
-                first_message = list(messages.get_messages(request))[0]
-            context = {'first_message': first_message}
+                primeira_mensagem = list(messages.get_messages(request))[0]
+            context = {'primeira_mensagem': primeira_mensagem}
             print(f'dentro do else{username}:{password}')
             return render(request, 'login.html', context)
         
