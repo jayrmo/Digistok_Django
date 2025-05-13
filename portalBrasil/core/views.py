@@ -34,5 +34,6 @@ class LoginView(View):
             if messages.get_messages(request):
                 first_message = list(messages.get_messages(request))[0]
             context = {'first_message': first_message}
-            print(f'dentro do else{username}-{password}')
+            print(f'dentro do else{username}:{password}')
             return render(request, 'login.html', context)
+        

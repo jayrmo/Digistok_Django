@@ -12,24 +12,24 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     // Form submission
-    const loginForm = document.getElementById('loginForm');
-    loginForm.addEventListener('submit', function (e) {
-        e.preventDefault();
+    // const loginForm = document.getElementById('loginForm');
+    // loginForm.addEventListener('submit', function (e) {
+    //     e.preventDefault();
 
-        const email = document.getElementById('email').value;
-        const password = document.getElementById('password').value;
+    //     const email = document.getElementById('email').value;
+    //     const password = document.getElementById('password').value;
 
-        // Simple validation
-        if (!email || !password) {
-            alert('Por favor, preencha todos os campos.');
-            return;
-        }
+    //     // Simple validation
+    //     if (!email || !password) {
+    //         alert('Por favor, preencha todos os campos.');
+    //         return;
+    //     }
 
-        // Here you would typically send the data to your server
-        console.log('Login attempt with:', { email, password });
+    //     // Here you would typically send the data to your server
+    //     console.log('Login attempt with:', { email, password });
 
-        // Simulate successful login
-        alert('Login realizado com sucesso! Redirecionando...');
-        // window.location.href = 'dashboard.html';
-    });
+    //     // Simulate successful login
+    //     alert('Login realizado com sucesso! Redirecionando...');
+    //     // window.location.href = 'dashboard.html';
+    // });
 });
