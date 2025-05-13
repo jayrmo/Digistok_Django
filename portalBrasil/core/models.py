@@ -24,13 +24,17 @@ class Noticia(models.Model):
     def __str__(self):
         return self.titulo
     
-
+    
+    
 class Usuario(AbstractUser):
-    cpf = models.CharField(max_length=14)
-    nome = models.CharField(max_length=100)
-    telefone = models.CharField(max_length=20, null=True, blank=True)
+    cpf = models.CharField(max_length=14, unique=True, db_index=True, null=True, blank=True)
+    email = models.CharField(max_length= 50, null=True, blank=True)
+    telefone = models.CharField(max_length=15, null=True, blank=True)
+    
+    USERNAME_FIELD = 'cpf'
+    # REQUIRED_FIELDS = ['username']
     
     def __str__(self):
-        return self.nome
+        return f' Nome: {self.username}, CPF: {self.cpf}'
 
 
