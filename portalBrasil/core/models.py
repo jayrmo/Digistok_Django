@@ -1,6 +1,4 @@
 from django.db import models
-from django.db import models
-from django.contrib.auth.models import AbstractUser
 
 # Create your models here.
 class Categoria(models.Model):
@@ -25,16 +23,3 @@ class Noticia(models.Model):
         return self.titulo
     
     
-    
-class Usuario(AbstractUser):
-    cpf = models.CharField(max_length=14, unique=True, db_index=True, null=True, blank=True)
-    email = models.CharField(max_length= 50, null=True, blank=True)
-    telefone = models.CharField(max_length=15, null=True, blank=True)
-    
-    USERNAME_FIELD = 'cpf'
-    # REQUIRED_FIELDS = ['username']
-    
-    def __str__(self):
-        return f' Nome: {self.username}, CPF: {self.cpf}'
-
-
