@@ -442,6 +442,39 @@ body {
     font-size: 14px;
 }
 
+/* User actions no header */
+.user-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-left: auto;
+    padding-right: 20px;
+    color: #fff;
+}
+
+.btn-login,
+.btn-logout {
+    background-color: #007BFF;
+    color: white;
+    padding: 6px 12px;
+    border-radius: 5px;
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+.btn-logout {
+    background-color: #dc3545;
+}
+
+
+
+span {
+    font-size: 14px;
+    font-weight: bold;
+}
+
+
 /* Responsividade */
 @media (max-width: 992px) {
     .barra-pesquisa input {

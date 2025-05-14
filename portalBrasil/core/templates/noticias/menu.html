@@ -1,15 +1,36 @@
-{% load 'static' %}
+{% load static %}
+
+
+<header class="site-header">
+    <div class="logo-container">
+        <i class="fa-solid fa-newspaper"></i>
+        <h1>Portal Brasil</h1>
+    </div>
+
+    <div class="user-actions">
+        {% if user.is_authenticated %}
+        <span>Bem-vindo, {{ user.first_name|default:user.username }}!</span>
+        <form action="{% url 'logout' %}" method="post">
+            {% csrf_token %}
+            <button type="submit" class="btn-logout">Sair</button>
+        </form>
+        {% else %}
+        <a href="{% url 'login' %}" class="btn-login">Entrar</a>
+        {% endif %}
+    </div>
+
+</header>
 <!-- Links de navegação dentro do site e barra de pesquisa -->
-    <nav class="main-menu">
-        <div class="barra-navegacao">
-            <a href="#"><i class="fa-solid fa-house"></i> Home</a>
-            <a href="#"><i class="fa-solid fa-landmark"></i> Política</a>
-            <a href="#"><i class="fa-solid fa-chart-line"></i> Economia</a>
-            <a href="#"><i class="fa-solid fa-futbol"></i> Esportes</a>
-            <a href="#"><i class="fa-solid fa-microchip"></i> Tecnologia</a>
-        </div>
-        <div class="barra-pesquisa">
-            <input type="text" placeholder="Pesquisar notícias">
-            <button><i class="fa-solid fa-search"></i></button>
-        </div>
-    </nav>
+<nav class="main-menu">
+    <div class="barra-navegacao">
+        <a href="#"><i class="fa-solid fa-house"></i> Home</a>
+        <a href="#"><i class="fa-solid fa-landmark"></i> Política</a>
+        <a href="#"><i class="fa-solid fa-chart-line"></i> Economia</a>
+        <a href="#"><i class="fa-solid fa-futbol"></i> Esportes</a>
+        <a href="#"><i class="fa-solid fa-microchip"></i> Tecnologia</a>
+    </div>
+    <div class="barra-pesquisa">
+        <input type="text" placeholder="Pesquisar notícias">
+        <button><i class="fa-solid fa-search"></i></button>
+    </div>
+</nav>

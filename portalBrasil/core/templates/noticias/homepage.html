@@ -1,30 +1,31 @@
-{% load 'static' %}
-{ % extends 'base.html' %}
-
+{% extends 'base.html' %}
+{% load static %}
+{% block head_extra %}
+<title>{{ title }}</title>
+{% endblock %}
 {% block conteudo %}
 <div class="painel-aba" id="recomendadas">
     <!-- Aba Recomendadas -->
     <div class="painel-aba ativo" id="ultimas">
         <div class="grid-noticias">
             {% for noticia in noticias %}
-            <!-- Article da notícia -->
+            
             <article class="card-noticia">
                 <div class="card-imagem">
                     <img src="{{ recomendadas.imagem_url }}" alt=" imagem 1">
                 </div>
-                <!-- Conteúdo do card -->
                 <div class="card-conteudo">
                     <span class="categoria tecnologia">{{ recomendadas.categoria }}</span>
                     <h3> {{ recomendadas.titulo }}</h3>
                     <p class="resumo"> {{ recomendadas.subtitulo }} </p>
-                    <!-- Função expandir card -->
+                    
                     <div class="card-expandir">
                         <p class="conteudo-completo">
                             {{ recomendadas.conteudo }}
                         </p>
                         <button class="btn-leia-mais">Leia mais</button>
                     </div>
-                    <!-- Rodapé -->
+                   
                     <div class="card-rodape">
                         <span class="data-publicacao">{{ recomendadas.data_publicacao }}</span>
                         <span class="tempo-leitura"><i class="fa-regular fa-clock"></i>{{ recomendadas.local

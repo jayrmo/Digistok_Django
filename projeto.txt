@@ -84,3 +84,146 @@ Arquivo Imagem em Db
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) #colocado logo abaixo da lista já criada urlpatterns
     ´´´
     
+
+
+---------------------------------------------------------------------------------------
+Ativar login automatico
+O django recebe os parametros no formulario html como username e password.
+Para mensageria de erro usar o if abaixo dentro do login.html:
+ {% if form.errors %}
+     <div style="color: red;">
+         <p>Usuário ou senha inválidos.</p>
+     </div>
+ {% endif %}
+
+
+No settings:
+LOGIN_URL = 'login' -Para onde mandar quem tentou acessar área protegida.
+LOGIN_REDIRECT_URL = 'homepage' -Para onde redirecionar após login bem-sucedido.
+LOGOUT_REDIRECT_URL = 'login' -Para onde ir após logout.
+TEMPLATES = [
+    {...
+            'context_processors': [
+                ...
+                'django.contrib.messages.context_processors.messages',
+                ...
+            ],
+        },  
+]
+INSTALLED_APPS = [
+    ...
+    'django.contrib.messages',
+    ...
+    
+]
+
+
+-------------------------------------------------------------------
+Criação de CBV login personalizados
+
+
+Na views
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth import authenticate, login
+from django.shortcuts import render, redirect
+from django.contrib import messages
+
+# class Login(View):
+#     def get(self, request):
+#         return render(request, 'login.html')
+
+#     def post(self, request):
+#         username = request.POST.get('username')
+#         password = request.POST.get('password')
+#         user = authenticate(request, username=username, password=password)
+        
+#         if user is not None:
+#             login(request, user)
+#             return redirect('homepage')
+#         else:
+#             messages.error(request, 'Usuário ou senha inválidos')
+#             if messages.get_messages(request):
+#                 primeira_mensagem = list(messages.get_messages(request))[0]
+#             context = {'primeira_mensagem': primeira_mensagem}
+#             return render(request, 'login.html', context)
+
+
+No URLs
+    from django.contrib.auth import views as auth_views
+    # path('login/', Login.as_view(),name='login'),
+
+No settings
+TEMPLATES = [
+    {...
+            'context_processors': [
+                ...
+                'django.contrib.messages.context_processors.messages',
+                ...
+            ],
+        },  
+]
+INSTALLED_APPS = [
+    ...
+    'django.contrib.messages',
+    ...
+    
+]
+
+-------------------------------------------------------
+
+Para proteger páginas sem logar
+Nas function base views
+
+from django.contrib.auth.decorators import login_required
+
+@login_required
+def nomeView(request):
+    ...
+
+Nas Class base views
+(Dica: LoginRequiredMixin deve vir antes da CBV base (TemplateView , ListView, etc.) na herança.)
+
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.views.generic import TemplateView
+
+class DashboardView(LoginRequiredMixin, TemplateView):
+ template_name = 'usuarios/dashboard.html'
+
+
+
+--------------------------------------
+logout
+
+template html q deseja q fique o botao de entrar e sair
+<div class="user-actions">
+        {% if user.is_authenticated %}
+        <span>Bem-vindo, {{ user.first_name|default:user.username }}!</span>
+        <form action="{% url 'logout' %}" method="post">
+            {% csrf_token %}
+            <button type="submit" class="btn-logout">Sair</button>
+        </form>
+        {% else %}
+        <a href="{% url 'login' %}" class="btn-login">Entrar</a>
+        {% endif %}
+    </div>
+
+
+views
+from django.views.decorators.cache import never_cache
+from django.utils.decorators import method_decorator
+
+@method_decorator(never_cache, name='dispatch')
+class HomePage(View):
+    def get(self, request):
+        return render(request, 'noticias/homepage.html')
+
+
+urls
+from django.contrib.auth import views as auth_views
+from django.contrib.auth.views import LoginView
+
+urlpatterns = [
+    path('', HomePage.as_view(), name='homepage'),
+    path('login/', LoginView.as_view(template_name='login.html'), name='login'),
+    path('logout/', auth_views.LogoutView.as_view(next_page='/'), name='logout'),
+]
