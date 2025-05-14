@@ -16,7 +16,7 @@ import datetime
 
 class HomePage(View):
     def get(self, request):
-        return render(request, 'home.html') 
+        return render(request, 'noticias/homepage.html') 
 
 
 

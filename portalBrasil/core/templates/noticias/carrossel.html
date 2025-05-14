@@ -1,0 +1,47 @@
+{% load 'static' %}
+{ % extends 'base.html' %}
+
+{% block conteudo %}
+<!-- Seção do carrossel de destaque estático -->
+<section class="carrossel-container">
+    <div class="carrossel-controles">
+        <button id="anterior" class="controle-btn"><i class="fa-solid fa-chevron-left"></i></button>
+        <button id="proximo" class="controle-btn"><i class="fa-solid fa-chevron-right"></i></button>
+    </div>
+    <div class="carrossel">
+        <div class="carrossel-slide ativo">
+            <img src="https://plus.unsplash.com/premium_vector-1719110245001-e40424da8477?q=80&w=2360&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                alt="Notícia em destaque 1">
+            <div class="slide-conteudo">
+                <h2>Brasil lidera iniciativa para redução de emissões de carbono</h2>
+                <p>Governo federal apresenta plano ambicioso para atingir neutralidade de carbono até 2050.</p>
+                <button class="btn-destaque">Leia mais</button>
+            </div>
+        </div>
+        <div class="carrossel-slide">
+            <img src="https://images.unsplash.com/photo-1518091043644-c1d4457512c6?auto=format&fit=crop&w=800&h=400"
+                alt="Notícia em destaque 2">
+            <div class="slide-conteudo">
+                <h2>Seleção brasileira se prepara para Copa América 2025</h2>
+                <p>Técnico convoca novos talentos para amistosos preparatórios visando o torneio continental.</p>
+                <button class="btn-destaque">Leia mais</button>
+            </div>
+        </div>
+        <div class="carrossel-slide">
+            <img src="https://images.unsplash.com/photo-1518186285589-2f7649de83e0?auto=format&fit=crop&w=800&h=400"
+                alt="Notícia em destaque 3">
+            <div class="slide-conteudo">
+                <h2>Economia brasileira mostra sinais de recuperação no primeiro trimestre</h2>
+                <p>PIB cresce 1,2% e analistas revisam projeções para o ano.</p>
+                <button class="btn-destaque">Leia mais</button>
+            </div>
+        </div>
+    </div>
+    <div class="carrossel-indicadores">
+        <div class="indicador ativo" data-indice="0"></div>
+        <div class="indicador" data-indice="1"></div>
+        <div class="indicador" data-indice="2"></div>
+    </div>
+</section>
+
+{% endblock %}

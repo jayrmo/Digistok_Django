@@ -9,14 +9,20 @@
     <link rel="stylesheet" href="css/styles.css">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="{% static 'noticia/js/script_login.js' %}" defer></script>
+    <script src="{% static 'noticia/js/script.js' %}" defer></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" type="text/css" href="{% static 'noticia/css/style_login.css' %}">
+    <div class="logo-container">
+        <i class="fa-solid fa-newspaper"></i>
+        <h1>Portal Brasil</h1>
+    </div>
     {% block head_extra %}{% endblock %}
 </head>
 
 <body>
-    {% block body %}
-    {% endblock %}
+    {% include 'noticias/menu.html' %}
+    {% block body %}{% endblock %}
+    {% include 'noticias/footer.html' %}
 </body>
 
 </html>
