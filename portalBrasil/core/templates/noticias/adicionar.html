@@ -15,7 +15,8 @@
                 </div>
 
                 <!-- Form Content -->
-                <form id="newsForm" class="p-6 space-y-6">
+                <form id="newsForm" class="p-6 space-y-6" method="POST" action="{% url 'salvar-noticia' %}">
+                    {% csrf_token %}
                     <!-- Título -->
                     <div class="relative">
                         <input type="text" id="titulo" name="titulo"
@@ -118,12 +119,9 @@
                         <select id="categoria" name="categoria"
                             class="w-full p-4 border border-gray-300 rounded-lg appearance-none input-field focus:outline-none focus:border-blue-500">
                             <option value="" selected disabled>Selecione uma categoria</option>
-                            <option value="politica">Política</option>
-                            <option value="economia">Economia</option>
-                            <option value="esportes">Esportes</option>
-                            <option value="entretenimento">Entretenimento</option>
-                            <option value="tecnologia">Tecnologia</option>
-                            <option value="saude">Saúde</option>
+                            {% for categoria in categorias %}
+                            <option value="{{ categoria.name }}">{{ categoria.name }}</option>
+                            {% endfor %}
                         </select>
                         <label for="categoria"
                             class="absolute left-4 top-4 text-gray-500 pointer-events-none floating-label">Categoria</label>
@@ -149,7 +147,8 @@
                             <i class="fas fa-times mr-2"></i> Limpar
                         </button>
                         <button type="submit"
-                            class="px-6 py-3 hover:bg-blue-700 text-white rounded-lg transition btn-submit" style="background-color: #133b5c;">
+                            class="px-6 py-3 hover:bg-blue-700 text-white rounded-lg transition btn-submit"
+                            style="background-color: #133b5c;">
                             <i class="fas fa-paper-plane mr-2"></i> Publicar Notícia
                         </button>
                     </div>
