@@ -18,7 +18,7 @@ import os
 @method_decorator(never_cache, name='dispatch')
 class HomePage(View):
     def get(self, request): 
-        noticias = Noticia.objects.all().order_by('-data_publicacao')
+        noticias = Noticia.objects.all().order_by('-data_publicacao')     
         context = {
             'title': 'Home',
             'noticias': noticias,
@@ -44,7 +44,7 @@ class HomeAdmView(LoginRequiredMixin, ListView):
     model = Noticia
     template_name = 'noticias/home_adm.html'
     context_object_name = 'noticias'
-    
+    paginate_by = 4 
     def get_queryset(self):
         return Noticia.objects.filter(autor=self.request.user)
     

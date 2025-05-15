@@ -57,5 +57,10 @@
     border-bottom-right-radius: 0.5rem;
     min-height: 200px;
 }
+.pagination {
+  grid-column: 1 / -1; /* ocupar todas as colunas no grid */
+  margin-top: 20px;
+  text-align: center;
+}
 
 

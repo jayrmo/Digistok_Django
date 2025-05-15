@@ -29,7 +29,8 @@
                 </div>
                 <div class="card-conteudo">
                     {% if noticia_item.categoria %}
-                    <span class="categoria {{ noticia_item.categoria.nome|slugify }}">{{ noticia_item.categoria.nome }}</span>
+                    <span class="categoria {{ noticia_item.categoria.nome|slugify }}">{{ noticia_item.categoria.nome
+                        }}</span>
                     {% else %}
                     <span class="categoria geral">Geral</span>
                     {% endif %}
@@ -45,22 +46,33 @@
                             {{ noticia_item.conteudo|linebreaksbr|truncatewords_html:30 }}
                         </p>
                         <button class="btn-leia-mais">Leia mais</button>
-                         <a href="{% url 'noticia_delete' noticia_item.id %}" class="btn btn-danger">Apagar</a>
-                         <a href="{% url 'noticia_editar' noticia_item.pk %}" class="btn bg-green-600">Editar</a>
+                        <a href="{% url 'noticia_delete' noticia_item.id %}" class="btn btn-danger">Apagar</a>
+                        <a href="{% url 'noticia_editar' noticia_item.pk %}" class="btn bg-green-600">Editar</a>
                     </div>
 
                     <div class="card-rodape">
                         <span class="data-publicacao">{{ noticia_item.data_publicacao|date:"d/m/Y H:i" }}</span>
                         {% if noticia_item.local %}
-                        <span class="tempo-leitura"><i class="fa-solid fa-map-marker-alt mr-1"></i>{{ noticia_item.local     }}</span>
+                        <span class="tempo-leitura"><i class="fa-solid fa-map-marker-alt mr-1"></i>{{ noticia_item.local  }}</span>
                         <span class="autor"><i class="fa-solid fa-user-pen mr-1"></i>{{ noticia_item.autor }}</span>
                         {% endif %}
-                       
+
                     </div>
                 </div>
 
             </article>
             {% endfor %}
+            <div class="pagination">
+                {% if page_obj.has_previous %}
+                <a href="?page={{ page_obj.previous_page_number }}" class="px-2 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 transition">Anterior</a>
+                {% endif %}
+
+                <span>Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</span>
+
+                {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}" class="px-2 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 transition">Próxima</a>
+                {% endif %}
+            </div>
             {% else %}
             <div class="col-span-full text-center py-10">
                 <p class="text-xl text-gray-600">Nenhuma notícia encontrada no momento.</p>
