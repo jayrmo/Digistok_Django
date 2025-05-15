@@ -134,13 +134,13 @@ class NoticiaDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
 
 # Apaga a imagem antiga do disco quando a noticia for apagada 
 @receiver(post_delete, sender=Noticia)
-def apagar_capa(sender, instance, **kwargs):
+def apagar_imagem(sender, instance, **kwargs):
     if instance.imagem_url and os.path.isfile(instance.imagem_url.path):
         os.remove(instance.imagem_url.path)
 
 # Apaga a imagem antiga do disco quando a  noticia for atualizada
 @receiver(pre_save, sender=Noticia)
-def apagar_capa_antiga(sender, instance, **kwargs):
+def apagar_imagem_antiga(sender, instance, **kwargs):
     if not instance.pk:
         return 
 
@@ -149,7 +149,7 @@ def apagar_capa_antiga(sender, instance, **kwargs):
     except Noticia.DoesNotExist:
         return
 
-    nova_imagem = instance.capa
+    nova_imagem = instance.imagem_url
     if imagem_antiga and imagem_antiga != nova_imagem:
         if os.path.isfile(imagem_antiga.path):
             os.remove(imagem_antiga.path)    
