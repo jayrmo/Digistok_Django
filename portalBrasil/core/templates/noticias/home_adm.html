@@ -29,8 +29,7 @@
                 </div>
                 <div class="card-conteudo">
                     {% if noticia_item.categoria %}
-                    <span class="categoria {{ noticia_item.categoria.nome|slugify }}">{{ noticia_item.categoria.nome
-                        }}</span>
+                    <span class="categoria {{ noticia_item.categoria.nome|slugify }}">{{ noticia_item.categoria.nome }}</span>
                     {% else %}
                     <span class="categoria geral">Geral</span>
                     {% endif %}
