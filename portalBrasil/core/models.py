@@ -1,3 +1,4 @@
+from django.contrib.auth.models import User
 from django.db import models
 
 # Create your models here.
@@ -12,7 +13,7 @@ class Noticia(models.Model):
     titulo = models.CharField(max_length=255)
     subtitulo = models.CharField(max_length=255, blank=True)
     conteudo = models.TextField()
-    autor = models.CharField(max_length=100, blank=True)
+    autor = models.ForeignKey(User, on_delete=models.CASCADE)
     data_publicacao = models.DateTimeField(auto_now_add=True)
     fonte = models.CharField(max_length=255, blank=True)
     local = models.CharField(max_length=100, blank=True)

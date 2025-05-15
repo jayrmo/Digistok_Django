@@ -68,10 +68,6 @@
                     </div>
                     <a href="#" class="text-sm text-blue-600 hover:text-blue-800 link-hover">Esqueceu a senha?</a>
                 </div>
-
-                <!-- {% if messages %}
-                    <p class="text-red-600 italic">{{ primeira_mensagem }}</p>
-                {% endif %} -->
                 {% if form.errors %}
                 <div style="color: red;">
                     <p>Usuário ou senha inválidos.</p>
@@ -81,30 +77,6 @@
                     class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg transition duration-300 btn-login">
                     Entrar
                 </button>
-                <!-- 
-                <div class="relative flex py-5 items-center">
-                    <div class="flex-grow border-t border-gray-300"></div>
-                    <span class="flex-shrink mx-4 text-gray-500">ou</span>
-                    <div class="flex-grow border-t border-gray-300"></div>
-                </div>
-
-                <div class="grid grid-cols-2 gap-4">
-                    <button type="button"
-                        class="flex items-center justify-center py-2 px-4 border border-gray-300 rounded-lg hover:bg-gray-50 transition">
-                        <i class="fab fa-google text-red-500 mr-2"></i>
-                        <span>Google</span>
-                    </button>
-                    <button type="button"
-                        class="flex items-center justify-center py-2 px-4 border border-gray-300 rounded-lg hover:bg-gray-50 transition">
-                        <i class="fab fa-facebook-f text-blue-600 mr-2"></i>
-                        <span>Facebook</span>
-                    </button>
-                </div> -->
-
-                <!-- <div class="text-center mt-6">
-                    <p class="text-gray-600">Não tem uma conta? <a href="#"
-                            class="text-blue-600 font-medium link-hover">Cadastre-se</a></p>
-                </div> -->
             </form>
         </div>
     </div>

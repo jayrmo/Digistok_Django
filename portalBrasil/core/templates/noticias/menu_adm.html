@@ -22,9 +22,8 @@
 </header>
 <nav class="main-menu">
     <div class="barra-navegacao">
-        <a href="#"><i class="fa-solid fa-house"></i> Inicio</a>
-        <a href="#"><i class="fas fa-plus-circle mr-1"></i> Adicionar Notícia</a>
-        <a href="#"><i class="fas fa-user mr-1"></i> Perfil</a>
+        <a href="{% url 'home_adm' %}"><i class="fa-solid fa-house"></i> Inicio</a>
+        <a href="{% url 'noticia_form' %}"><i class="fas fa-plus-circle mr-1"></i> Adicionar Notícia</a>
     </div>
     <div class="barra-pesquisa">
         <input type="text" placeholder="Pesquisar notícias">
