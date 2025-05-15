@@ -30,7 +30,7 @@ O sistema foi desenvolvido com as seguintes tecnologias e ferramentas:
 ### 📁 Estrutura:
 
 ```
-potalBrasil/
+portalBrasil/
 ├── core/
 │   ├── models.py
 │   ├── urls.py
@@ -95,8 +95,8 @@ python manage.py runserver
 
 ### 5. Acesse a aplicação
 
-Visite [http://localhost:8000](http://localhost:8000) para página de noticias.
-Visite [http://localhost:8000/login](http://localhost:8000/login) para logar como administrador do site.
+- Visite [http://localhost:8000](http://localhost:8000) para página de noticias.
+- Visite [http://localhost:8000/login](http://localhost:8000/login) para logar como administrador do site.
 
 
 ---
