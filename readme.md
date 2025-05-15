@@ -4,7 +4,7 @@
 Este projeto é um exemplo simples para demonstrar o uso de:
 
 - Django com PostgreSQL
-- Views baseadas em função
+- Views baseadas em Classes
 - Templates com dados dinâmicos
 - Upload e exibição de imagens (mídia)
 - Organização de templates, estáticos e media
