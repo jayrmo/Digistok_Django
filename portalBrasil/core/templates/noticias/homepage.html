@@ -1,5 +1,7 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load noticia_tags %}
+
 {% block head_extra %}
 <title>{{ title }}</title>
 {% endblock %}
@@ -45,7 +47,9 @@
                             <span class="tempo-leitura"><i class="fa-solid fa-map-marker-alt mr-1"></i>{{ noticia_item.local }}</span>
                             <span class="tempo-leitura"><i class="fa-solid fa-user-pen mr-1"></i>{{ noticia_item.autor }}</span>
                             {% endif %}
-                           
+                           <span class="tempo-leitura-tag text-xs text-gray-500 ml-2">
+                                <i class="fa-regular fa-clock mr-1"></i>{% tempo_leitura noticia_item.conteudo %}
+                            </span>
 
                         </div>
                     </div>
