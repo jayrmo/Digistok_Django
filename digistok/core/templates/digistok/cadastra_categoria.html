@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block body %}
+<div>
+    <div class="row justify-content-center">
+        <div class="">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0"><i class="bi bi-box-seam"></i> Cadastro de Categoria</h3>
+                </div>
+                <div class="card-body">
+                    <form id="productForm" method="POST">
+                        {% csrf_token %}
+                        {% if erro %}
+                        <div class="alert alert-danger">{{ erro }}</div>
+                        {% endif %}
+                        <div class="mb-3">
+                            <label for="categoriaNome" class="form-label">Nome da Categoria</label>
+                            <input type="text" class="form-control" id="categoryName" name="categoriaNome" required
+                                value="{{ categoria.nome|default_if_none:'' }}">
+                        </div>
+                        {% if messages %}
+                        <div class="mt-3">
+                            {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }} d-flex align-items-center" role="alert">
+                                {% if message.tags == 'success' %}
+                                <i class="bi bi-check-circle-fill me-2"></i>
+                                {% elif message.tags == 'error' %}
+                                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                                {% endif %}
+                                <div>
+                                    {{ message }}
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <button type="button" class="btn btn-secondary me-md-2" onclick="resetForm()">
+                                <i class="bi bi-x-circle"></i> Limpar
+                            </button>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-save"></i> Salvar
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="card shadow mt-4">
+        <div class="card-header bg-primary text-white">
+            <h3 class="mb-0"><i class="bi bi-list-ul"></i> Lista de Categorias</h3>
+        </div>
+        <div class="card-body">
+            <div class="list-group" id="existingCategoriesList">
+                {% if categorias %}
+                {% for categoria in categorias %}
+                <div class="list-group-item d-flex justify-content-between align-items-center mb-1">
+                    <span>{{ categoria.nome }}</span>
+                    <div>
+                        <a href="{% url 'editar_categoria' categoria.pk %}" class="btn btn-warning btn-sm me-2">
+                            <i class="bi bi-pencil-square"></i> Editar
+                        </a>
+                        <form action="{% url 'apaga_categoria' categoria.pk %}" method="post" class="d-inline">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger btn-sm"
+                                onclick="return confirm('Tem certeza que deseja excluir esta categoria?');">
+                                <i class="bi bi-trash"></i> Excluir
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                {% endfor %}
+                {% else %}
+
+                <p class="text-muted text-center" id="noCategoriesMessage">Nenhuma categoria cadastrada ainda.
+                </p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+
+
+{% endblock %}

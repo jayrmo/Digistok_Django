@@ -1,7 +1,9 @@
 Acesso PostGre na WSL ubuntu
-Banco: noticia
-use: noticia
-senha: noticia
+Banco: digistok
+use: digistok
+senha: digistok
+
+
 
 
 -------------------------------------------------

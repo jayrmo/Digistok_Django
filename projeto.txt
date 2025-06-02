@@ -1,7 +1,10 @@
 Criação projeto Django
 1- Cria a .venv
+python -m venv .venv
 2- Instala o Django
-3- cria o projeto com: django-admin startprojetct nomedoprojeto
+pip install Django
+3- cria o projeto com: 
+django-admin startprojetct nomedoprojeto
 
 ----------------------------------------------------
 Criação de superuser para area admin

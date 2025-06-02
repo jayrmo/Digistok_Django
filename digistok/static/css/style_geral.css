@@ -1,0 +1,13 @@
+/* Main */
+.main-content {
+    height: 100%;
+    margin-left: 200px;
+    padding: 20px;
+    transition: margin-left 0.3s ease-in-out;
+}
+
+@media (max-width: 480px) {
+    .main-content {
+        margin-left: 60px;
+    }
+}

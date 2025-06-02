@@ -1,0 +1,157 @@
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 200px;
+    padding-top: 20px;
+    background-color: #00488b;
+    transition: width 0.3s ease-in-out;
+    display: flex;
+    flex-direction: column;
+}
+
+.sidebar .logo {
+    padding-left: 3%;
+
+}
+
+.sidebar .logo .logo-maior {
+    width: 180px;
+    height: 55px;
+}
+
+.sidebar .logo .logo-menor {
+    display: none;
+    width: 30px;
+    height: 30px;
+}
+
+.sidebar .nav-link {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding: 10px 20px;
+    color: #fff;
+    text-decoration: none;
+}
+
+
+.sidebar .description {
+    font-size: 14px;
+
+}
+
+.sidebar .nav-link:hover {
+    background-color: #d8a602;
+}
+
+.sidebar .sub-menu {
+    background-color: #023565;
+    padding-left: 3%;
+}
+
+
+/* Usuario */
+.sidebar .dropdown-menu {
+    background-color: #023565;
+    border: none;
+    width: 100%;
+    padding-left: 3%;
+}
+
+.sidebar .dropdown-menu .dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding: 10px 20px;
+    color: #fff;
+}
+
+.sidebar .dropdown-menu .dropdown-item:hover {
+    background-color: #d8a602;
+}
+
+
+/* Usuario */
+.sidebar .usuario img {
+    width: 40px;
+    height: 40px;
+    border-radius: 100%;
+}
+
+.sidebar .roda-pe {
+    width: 100%;
+}
+
+.sidebar .roda-pe .dropdown-toggle {
+    width: 100%;
+    justify-content: flex-start;
+}
+
+.sidebar .roda-pe:hover {
+    color: #0d6efd;
+}
+
+.sidebar .dropdown-menu .dropdown-item:hover {
+    color: #0d6efd;
+}
+
+
+
+
+@media (max-width: 480px) {
+    .sidebar {
+        width: 60px;
+    }
+
+    .sidebar .logo {
+        justify-content: center;
+    }
+
+    .sidebar .logo .logo-maior {
+        display: none;
+    }
+
+    .sidebar .logo .logo-menor {
+        display: flex;
+        width: 30px;
+        height: 30px;
+        margin-left: 15px;
+        transition: width 0.3s ease-in-out;
+    }
+
+    .sidebar .nav-link .description {
+        display: none;
+    }
+
+
+    .sidebar .dropdown-menu .dropdown-item .description {
+        display: none;
+    }
+
+
+    .sidebar .nav-link {
+        justify-content: center;
+        gap: 0;
+        padding: 10px;
+    }
+
+
+    .sidebar .dropdown-menu .dropdown-item {
+        justify-content: center;
+        gap: 0;
+        padding: 10px;
+    }
+
+    .sidebar .roda-pe .dropdown-toggle::after {
+        display: none !important;
+    }
+
+    .sidebar .dropdown-menu {
+        min-width: 60px;
+
+    }
+
+   
+}

@@ -1,0 +1,91 @@
+/* Estilo personalizado para o modal de categorias */
+.category-modal {
+    max-width: 500px;
+}
+
+/* Estilo para a lista de unidades de medida e fornecedores */
+.dropdown {
+    position: relative;
+    display: inline-block;
+    width: 100%;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #f9f9f9;
+    min-width: 160px;
+    box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+    z-index: 1;
+    max-height: 200px;
+    overflow-y: auto;
+    width: 100%;
+}
+
+
+
+.dropdown-content a {
+    color: black;
+    padding: 8px 12px;
+    text-decoration: none;
+    display: block;
+    cursor: pointer;
+}
+
+.dropdown-content a:hover {
+    background-color: #d8a602;
+}
+
+.show {
+    display: block;
+}
+
+/* Estilo para o campo de categoria */
+.category-input-group {
+    position: relative;
+}
+
+.category-list {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    z-index: 1000;
+    display: none;
+    float: left;
+    min-width: 10rem;
+    padding: 0.5rem 0;
+    margin: 0.125rem 0 0;
+    font-size: 1rem;
+    color: #212529;
+    text-align: left;
+    list-style: none;
+    background-color: #fff;
+    background-clip: padding-box;
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    border-radius: 0.25rem;
+    max-height: 200px;
+    overflow-y: auto;
+    width: 100%;
+}
+
+.category-list.show {
+    display: block;
+}
+
+.category-item {
+    display: block;
+    width: 100%;
+    padding: 0.25rem 1.5rem;
+    clear: both;
+    font-weight: 400;
+    color: #212529;
+    text-align: inherit;
+    white-space: nowrap;
+    background-color: transparent;
+    border: 0;
+    cursor: pointer;
+}
+
+.category-item:hover {
+    background-color: #d8a602;
+}

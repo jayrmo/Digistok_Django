@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block body %}
+
+
+<div class="py-7">
+    <div class="row justify-content-center">
+        <div class="">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0"><i class="bi bi-box-seam"></i> Cadastro de Produto</h3>
+                </div>
+                <div class="card-body">
+                    <form id="productForm">
+                        <div class="mb-3">
+                            <label for="productName" class="form-label">Nome do Produto</label>
+                            <input type="text" class="form-control" id="productName" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="quantity" class="form-label">Quantidade</label>
+                            <input type="number" class="form-control" id="quantity" min="0" step="0.01" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="description" class="form-label">Descrição</label>
+                            <textarea class="form-control" id="description" rows="3"></textarea>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="unit" class="form-label">Unidade de Medida</label>
+                            <div class="dropdown">
+                                <input type="text" class="form-control" id="unit" placeholder="Selecione a unidade"
+                                    readonly>
+                                <div id="unitDropdown" class="dropdown-content">
+                                    <a onclick="selectDropdown('unit', 'Unidade')">Unidade</a>
+                                    <a onclick="selectDropdown('unit', 'Pacote')">Pacote</a>
+                                    <a onclick="selectDropdown('unit', 'Caixa')">Caixa</a>
+                                    <a onclick="selectDropdown('unit', 'Saco')">Saco</a>
+                                    <a onclick="selectDropdown('unit', 'Par')">Par</a>
+                                    <a onclick="selectDropdown('unit', 'Dúzia')">Dúzia</a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="supplier" class="form-label">Fornecedor</label>
+                            <div class="dropdown">
+                                <input type="text" class="form-control" id="supplier"
+                                    placeholder="Selecione o fornecedor" readonly>
+                                <div id="supplierDropdown" class="dropdown-content">
+                                    <a onclick="selectDropdown('supplier', 'Fornecedor A')">Fornecedor A</a>
+                                    <a href="{% url 'cadastra_fornecedor' %}">Cadastrar Fornecedor</a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="category" class="form-label">Categoria</label>
+                            <div class="input-group category-input-group">
+                                <input type="text" class="form-control  " id="category"
+                                    placeholder="Selecione a categoria" readonly >
+                                <button class="btn btn-outline-secondary" type="button" id="categoryDropdownButton"
+                                    onclick="toggleCategoryList()">
+                                    <i class="bi bi-chevron-down"></i>
+                                </button>
+                                <button class="btn btn-primary" type="button" data-bs-toggle="modal"
+                                    data-bs-target="#categoryModal">
+                                    <i class="bi bi-gear"></i> Gerenciar
+                                </button>
+                                <ul id="categoryList" class="category-list">
+                                    <!-- Categorias serão carregadas aqui -->
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <button type="button" class="btn btn-secondary me-md-2" onclick="resetForm()">
+                                <i class="bi bi-x-circle"></i> Limpar
+                            </button>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-save"></i> Salvar
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para gerenciamento de categorias -->
+<div class="modal fade" id="categoryModal" tabindex="-1" aria-labelledby="categoryModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered category-modal">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="categoryModalLabel"><i class="bi bi-tags"></i> Gerenciar Categorias</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                    aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label for="newCategory" class="form-label">Nova Categoria</label>
+                    <div class="input-group">
+                        <input type="text" class="form-control" id="newCategory"
+                            placeholder="Digite o nome da categoria">
+                        <button class="btn btn-success" type="button" onclick="addCategory()">
+                            <i class="bi bi-plus-circle"></i> Adicionar
+                        </button>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Categorias Existentes</label>
+                    <div class="list-group" id="existingCategories">
+                        <!-- Categorias existentes serão listadas aqui -->
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="bi bi-x-lg"></i> Fechar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

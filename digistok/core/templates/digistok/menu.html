@@ -1,0 +1,135 @@
+{% load static %}
+
+<!--Inicio Barra Lateral-->
+<div class="sidebar  d-flex flex-column justify-content-between" style="height: 100vh;">
+        <div class="row justify-content-around mb-5 logo">
+            <div class="col">
+                <img src="../../../static/icon/LogoLateralpng.png" class="logo-maior">
+                <img src="../../../static/icon/LogoSemNome.png" class="logo-menor">
+            </div>
+        </div>
+        <nav class="nav flex-column">
+            <!-- Dashboard -->
+            <a class="nav-link" href="#">
+                <span class="icon">
+                    <i class="bi bi-grid">
+                    </i>
+                </span>
+                <span class="description">Dashboard</span>
+            </a>
+
+            <!-- Cadastrar -->
+            <a class="nav-link" href="#" data-bs-toggle="collapse" data-bs-target="#submenu-cadastro"
+                aria-expanded="false" aria-controls="submenu">
+                <span class="icon">
+                    <i class="bi bi-pencil-square">
+                    </i>
+                </span>
+                <span class="description">Cadastrar <i class="bi bi-caret-down-fill"></i></span>
+            </a>
+            <!-- Submenu Cadastro -->
+            <div class="sub-menu collapse" id="submenu-cadastro">
+                <a class="nav-link" href="{% url 'cadastra_produto' %}">
+                    <span class="icon">
+                        <i class="bi bi-upc-scan">
+                        </i>
+                    </span>
+                    <span class="description">Produto</span>
+                </a>
+                <a class="nav-link" href="{% url 'cadastra_categoria' %}">
+                    <span class="icon">
+                        <i class="bi bi-tags">
+                        </i>
+                    </span>
+                    <span class="description">Categoria</span>
+                </a>
+                <a class="nav-link" href="{% url 'cadastra_fornecedor' %}">
+                    <span class="icon">
+                        <i class="bi bi-truck">
+                        </i>
+                    </span>
+                    <span class="description">Fornecedor</span>
+                </a>
+                <a class="nav-link" href="#">
+                    <span class="icon">
+                        <i class="bi bi-geo-alt-fill">
+                        </i>
+                    </span>
+                    <span class="description">Locais Estoque</span>
+                </a>
+            </div>
+
+
+
+            <!-- Estoque -->
+            <a class="nav-link" href="#" data-bs-toggle="collapse" data-bs-target="#submenu-estoque"
+                aria-expanded="false" aria-controls="submenu">
+                <span class="icon">
+                    <i class="bi bi-box-seam">
+                    </i>
+                </span>
+                <span class="description">Estoque <i class="bi bi-caret-down-fill"></i></span>
+            </a>
+            <!-- Submenu Cadastro -->
+            <div class="sub-menu collapse" id="submenu-estoque">
+                <a class="nav-link" href="#">
+                    <span class="icon">
+                        <i class="bi bi-arrows-move">
+                        </i>
+                    </span>
+                    <span class="description">Movimentações</span>
+                </a>
+                <a class="nav-link" href="#">
+                    <span class="icon">
+                        <i class="bi bi-arrow-left-right">
+                        </i>
+                    </span>
+                    <span class="description">Transferências</span>
+                </a>
+            </div>
+            <!-- Relátorio -->
+            <a class="nav-link" href="#">
+                <span class="icon">
+                    <i class="bi bi-file-earmark-text">
+                    </i>
+                </span>
+                <span class="description">Relatório</span>
+            </a>
+
+        </nav>
+        <div class="dropdown dropup roda-pe mt-auto mb-4 ">
+            <hr class="my-3" style="border-top: 1px solid white;">
+            <a class="nav-link dropdown-toggle mb-3 d-flex align-items-center" href="#" role="button"
+                data-bs-toggle="dropdown" aria-expanded="false">
+                <span class="icon usuario">
+                    <img src="../../../static/icon/jayr.png" alt="Jayr" />
+                </span>
+                <span class="description">Jayr</span>
+            </a>
+            <div class="dropdown-menu sub-menu">
+                <a class="dropdown-item nav-link" href="#">
+                    <span class="icon">
+                        <i class="bi bi-person"></i>
+                    </span>
+                    <span class="description">Perfil</span>
+                </a>
+                <a class="dropdown-item nav-link" href="#">
+                    <span class="icon">
+                        <i class="bi bi-key"></i>
+                    </span>
+                    <span class="description">Alterar Senha</span>
+                </a>
+                <a class="dropdown-item nav-link" href="#">
+                    <span class="icon">
+                        <i class="bi-box-arrow-right"></i>
+                    </span>
+                    <span class="description">Sair</span>
+                </a>
+
+            </div>
+        </div>
+    </div>
+
+
+
+    </div>
