@@ -8,6 +8,7 @@ from django.http import HttpResponseRedirect
 from django.views.generic import DeleteView
 from django.core.paginator import Paginator
 from django.views.generic import ListView
+from django.http import HttpResponse
 from django.dispatch import receiver
 from django.urls import reverse_lazy
 from django.contrib import messages
@@ -28,13 +29,129 @@ class HomePage(View):
         return render(request, 'digistok/homepage.html', context) 
     
     
+  
+# INICIO CRUD PRODUTO ----------------------------  
+# Cadastra e Lista Produto
 class CadastraProduto(View):
     def get(self, request):
+        busca = request.GET.get('busca')
+        fornecedores = Fornecedor.objects.all().order_by('id')
+        categorias = Categoria.objects.all().order_by('id')
+        produtos_lista = Produto.objects.all().order_by('id')
+        if busca:
+            produtos_lista = Produto.objects.filter(
+                Q(codigo__icontains=busca) | Q(descricao__icontains=busca) | Q(categoria__iexact=busca)
+                    ).order_by('id')
+        else:
+            produtos_lista = Produto.objects.all().order_by('id')    
+        
+        paginator = Paginator(produtos_lista, 5)
+        page_number = request.GET.get('page', 1)
+        produtos = paginator.get_page(page_number)
+        
         context = {
-            'title': 'Produto',
+            'produtos' : produtos,
+            'fornecedores': fornecedores,
+            'categorias': categorias,
+            'title': 'produto',
+            'busca': busca
         }
-        return render (request, 'digistok/cadastra_produto.html', context)
+        return render(request, 'digistok/cadastra_produto.html', context)
+    def post(self, request):
+        codigo = request.POST.get('codigo', '').strip()
+        foto = request.FILES.get('foto')
+        descricao = request.POST.get('descricao', '').strip()
+        unidade = request.POST.get('unidade', '').strip()
+        fornecedor_id = request.POST.get('fornecedor', '').strip()
+        categoria_id = request.POST.get('categoria', '').strip()
+        detalhes = request.POST.get('detalhes', '').strip()
+
+        if not codigo:
+            messages.error(request, 'Código do produto é obrigatório.')
+            return redirect('cadastra_produto')
+
+        if Produto.objects.filter(codigo=codigo).exists():
+            messages.error(request, f'O produto com código {codigo} já está cadastrado.')
+            return redirect('cadastra_produto')
+
+        # Recupera instâncias de categoria e fornecedor, se existirem
+        categoria = Categoria.objects.filter(id=categoria_id).first() if categoria_id else None
+        fornecedor = Fornecedor.objects.filter(id=fornecedor_id).first() if fornecedor_id else None
+
+        produto = Produto(
+            codigo=codigo,
+            foto=foto,
+            descricao=descricao,
+            unidade_medida=unidade,
+            fornecedor=fornecedor,
+            categoria=categoria,
+            detalhes=detalhes
+        )
+        produto.save()
+        messages.success(request, 'Produto cadastrado com sucesso!')
+        return redirect('cadastra_produto')
+        
     
+# Edita Produto
+class EditaProduto(View):
+    template_name = 'digistok/cadastra_produto.html'
+
+    def get(self, request, pk):
+        produto = get_object_or_404(Produto, pk=pk)
+        produtos = Produto.objects.all()
+        return render(request, self.template_name, {
+            'produto': produto,
+            'produtos' : produtos
+        })
+
+    def post(self, request, pk):
+        produto = get_object_or_404(Produto, pk=pk)
+        produto.descricao = request.POST.get('descricao', '').strip()
+        produto.unidade = request.POST.get('unidade', '').strip()
+        produto.categoria = request.POST.get('categoria', '').strip()
+        produto.fornecedor = request.POST.get('fornecedor', '').strip()
+        produto.save()
+        messages.success(request, "Produto atualizado com sucesso!")
+        return redirect('cadastra_produto')
+
+
+# Apaga Produto individual
+class ApagaProduto(DeleteView):
+    model = Produto
+    template_name = 'digistok/cadastra_produto.html'
+    success_url = reverse_lazy('cadastra_produto')
+    
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        descricao = self.object.descricao
+        self.object.delete()
+        messages.success(request, f'Produto "{descricao}" apagado com sucesso.')
+        return HttpResponseRedirect(self.success_url)
+
+
+# Apaga múltiplos produtos
+@method_decorator(csrf_exempt, name='dispatch')
+class ApagaProdutosSelecionados(View):
+    def post(self, request):
+        ids = request.POST.getlist('produtos_selecionados')
+        if ids:
+            produtos = Produto.objects.filter(id__in=ids)
+            quantidade = produtos.count()
+            nome_primeiro = produtos[0].descricao if quantidade == 1 else None
+            produtos.delete()
+            if quantidade == 1:
+                messages.success(request, f'Produto "{nome_primeiro}" apagado com sucesso.')
+            else:
+                messages.success(request, f'"{quantidade}" produtos apagados com sucesso.')
+        else:
+            messages.warning(request, "Nenhum produto selecionado para exclusão.")
+        return redirect('cadastra_produto')
+# Final CRUD PRODUTO------------------------------
+    
+    
+    
+    
+# INICIO CRUD FORNECEDOR------------------------------
 # Cadastra e Lista Fornecedor
 class CadastraFornecedor(View):
     def get(self, request):
@@ -154,9 +271,16 @@ class ApagaFornecedoresSelecionados(View):
         else:
             messages.warning(request, "Nenhum fornecedor selecionado para exclusão.")
         return redirect('cadastra_fornecedor')
+# Final CRUD FORNECEDOR------------------------------
 
 
-# CRUD CATEGORIA--------------------------------------
+
+
+
+
+
+
+# INICIO CRUD CATEGORIA--------------------------------------
 # Cadastra e Lista Categoria 
 class CadastraCategoria(View):
     def get(self, request):
@@ -179,18 +303,48 @@ class CadastraCategoria(View):
         return render (request, 'digistok/cadastra_categoria.html', context)
     
     def post(self, request):
-        nome = request.POST.get('categoriaNome', '').strip()
-        if nome:
-            existe = Categoria.objects.filter(nome=nome).exists()
-        if existe:
+        nome1 = request.POST.get('categoriaNome', '').strip()
+        nome2 = request.POST.get('categoriaCadastra', '').strip()
+
+        nome = nome2 or nome1
+        origem = 'cadastra_produto' if nome2 else 'cadastra_categoria'
+
+        if not nome:
+            messages.error(request, "O nome da categoria não pode estar em branco.")
+            return redirect(origem)
+
+        if Categoria.objects.filter(nome=nome).exists():
             messages.error(request, f'A categoria "{nome}" já está cadastrada.')
-            return redirect('cadastra_categoria')
-        if nome:
-            Categoria.objects.create(nome = nome)
-            messages.success(self.request, f'Categoria "{ nome }" salva com sucesso!')
-        else:
-            messages.error(self.request, "O nome da categoria não pode estar em branco.")
-        return redirect('cadastra_categoria')
+            return redirect(origem)
+
+        Categoria.objects.create(nome=nome)
+        messages.success(request, f'Categoria "{nome}" salva com sucesso!')
+        return redirect(origem)
+    
+    # def post(self, request):
+    #     nome = request.POST.get('categoriaNome', '').strip()
+    #     nome_categoria_pagina_cadastra = request.POST.get('categoriaCadastra', '').strip()
+    #     if nome or nome_categoria_pagina_cadastra:
+    #         existe = Categoria.objects.filter(Q(nome=nome) | Q(nome=nome_categoria_pagina_cadastra)).exists()
+    #     if existe:
+    #         if nome_categoria_pagina_cadastra:
+    #             messages.error(request, f'A categoria "{nome}" já está cadastrada.')
+    #             return redirect('cadastra_produto')
+    #         else:
+    #             messages.error(request, f'A categoria "{nome}" já está cadastrada.')
+    #             return redirect('cadastra_categoria')
+    #     if nome or nome_categoria_pagina_cadastra:
+    #         if nome_categoria_pagina_cadastra:
+    #             Categoria.objects.create(nome=nome_categoria_pagina_cadastra)
+    #             messages.success(self.request, f'Categoria "{ nome }" salva com sucesso!')
+    #             return redirect('cadastra_produto')
+    #         else:
+    #             Categoria.objects.create(nome=nome)
+    #             messages.success(self.request, f'Categoria "{ nome }" salva com sucesso!')
+    #             return redirect('cadastra_categoria')
+    #     else:
+    #         messages.error(self.request, "O nome da categoria não pode estar em branco.")
+    #         return redirect('cadastra_categoria')
                      
 
 # Edita Categoria

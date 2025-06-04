@@ -1,24 +1,73 @@
-// Simulação de banco de dados para categorias
-// let categories = ['Eletrônicos', 'Alimentos', 'Bebidas', 'Limpeza', 'Escritório'];
+document.addEventListener('DOMContentLoaded', function () {
 
-// Simulação de banco de dados para fornecedores
-// let suppliers = ['Fornecedor A', 'Fornecedor B', 'Fornecedor C', 'Fornecedor D', 'Fornecedor E', 'Fornecedor F'];
+    // Lista Suspensa genérica
+    // botão do dropdown precisa ter o atributo data-bs-toggle="dropdown", data-dropdown="btn" e data-target="id do UL"
+    // O <input type="hidden"> precisa de: data-dropdown="input"
+    // <a> do menu precisa de data-id e data-name
+    
+    const dropdowns = document.querySelectorAll('[data-dropdown="container"]');
+
+    dropdowns.forEach(container => {
+        const dropdownBtn = container.querySelector('[data-dropdown="btn"]');
+        const hiddenInput = container.querySelector('[data-dropdown="input"]');
+        const menuId = dropdownBtn.getAttribute('data-target');
+        const menu = document.getElementById(menuId);
+
+        if (!dropdownBtn || !hiddenInput || !menu) return;
+
+        menu.querySelectorAll('a[data-id]').forEach(item => {
+            item.addEventListener('click', e => {
+                e.preventDefault();
+                const name = item.getAttribute('data-name');
+                const id = item.getAttribute('data-id');
+
+                dropdownBtn.textContent = name;
+                hiddenInput.value = id;
+            });
+        });
+    });
+
+
+    
+    // Previe para Foto
+    const input = document.querySelector('#photo');
+    const preview = document.querySelector('#photoPreview');
+
+    if (input) {
+        input.addEventListener('change', function (event) {
+            if (event.target.files && event.target.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    preview.src = e.target.result;
+                    preview.style.display = 'block';
+                };
+                reader.readAsDataURL(event.target.files[0]);
+            } else {
+                preview.src = '#';
+                preview.style.display = 'none';
+            }
+        });
+    }
+
+    
+
+});
+
 
 // Carrega as categorias quando a página é carregada
-// document.addEventListener('DOMContentLoaded', function () {
-    // loadCategories();
-    // loadExistingCategories();
+// loadCategories();
+// loadExistingCategories();
 
-    // Configura os dropdowns
-    // document.getElementById('unit').addEventListener('click', function () {
-    //     document.getElementById('unitDropdown').classList.toggle('show');
-    // });
+// Configura os dropdowns
+// document.getElementById('unit').addEventListener('click', function () {
+//     document.getElementById('unitDropdown').classList.toggle('show');
+// });
 
-    // document.getElementById('supplier').addEventListener('click', function () {
-    //     document.getElementById('supplierDropdown').classList.toggle('show');
-    // });
+// document.getElementById('supplier').addEventListener('click', function () {
+//     document.getElementById('supplierDropdown').classList.toggle('show');
+// });
 
-    // Fecha os dropdowns se clicar fora
+// Fecha os dropdowns se clicar fora
 //     window.onclick = function (event) {
 //         if (!event.target.matches('#unit') && !event.target.matches('#supplier')) {
 //             var dropdowns = document.getElementsByClassName("dropdown-content");
@@ -153,9 +202,9 @@
 //         return;
 //     }
 
-    // Aqui você faria a submissão para o servidor
-    // alert(`Produto cadastrado com sucesso!\n\nNome: ${productName}\nQuantidade: ${quantity}\nUnidade: ${unit}\nFornecedor: ${supplier}\nCategoria: ${category}`);
+// Aqui você faria a submissão para o servidor
+// alert(`Produto cadastrado com sucesso!\n\nNome: ${productName}\nQuantidade: ${quantity}\nUnidade: ${unit}\nFornecedor: ${supplier}\nCategoria: ${category}`);
 
-    // Limpa o formulário após o cadastro
+// Limpa o formulário após o cadastro
 //     resetForm();
 // });

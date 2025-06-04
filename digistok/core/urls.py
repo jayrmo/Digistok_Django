@@ -7,17 +7,23 @@ urlpatterns = [
     # Páginas de Home
     path('', HomePage.as_view(), name='homepage'),
     
-    # # CRUD
+    # # CRUD PRODUTO
     path('cadastra_produto', CadastraProduto.as_view(), name='cadastra_produto'),
+    path('produto/<int:pk>/editar/', EditaProduto.as_view(), name='editar_produto'),
+    path('produto/delete/<int:pk>/', ApagaProduto.as_view(), name='apaga_produto'),
+    path('produto/apagar_selecionados/', ApagaProdutosSelecionados.as_view(), name='apaga_produtos_selecionados'),
+    
+    # CRUD Categoria
     path('cadastra_categoria', CadastraCategoria.as_view(), name='cadastra_categoria'),
     path('categoria/<int:pk>/editar/', EditaCategoria.as_view(), name='editar_categoria'),
     path('categoria/delete/<int:pk>/', ApagaCategoria.as_view(), name='apaga_categoria'),
-    path('categoria/apagar_selecionados/',ApagaCategoriasSelecionadas.as_view(), name='apaga_selecionadas'),
+    path('categoria/apagar_selecionados/', ApagaCategoriasSelecionadas.as_view(), name='apaga_selecionadas'),
 
+    # CRUD FORNECEDOR
     path('cadastra_fornecedor', CadastraFornecedor.as_view(), name='cadastra_fornecedor'),
     path('fornecedor/<int:pk>/editar/', EditaFornecedor.as_view(), name='editar_fornecedor'),
     path('fornecedor/delete/<int:pk>/', ApagaFornecedor.as_view(), name='apaga_fornecedor'),
-    path('fornecedor/apagar_selecionados/',ApagaFornecedoresSelecionados.as_view(), name='apaga_selecionados'),
+    path('fornecedor/apagar_selecionados/', ApagaFornecedoresSelecionados.as_view(), name='apaga_selecionados'),
     
     
     # path('noticia_form', Noticia_form.as_view(), name='noticia_form'),

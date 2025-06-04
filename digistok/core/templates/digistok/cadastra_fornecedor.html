@@ -17,29 +17,33 @@
                         <div class="alert alert-danger">{{ erro }}</div>
                         {% endif %}
                         <div class="mb-3">
-                            <label for="productName" class="form-label">CPF/CNPJ</label>
+                            <label for="productName" class="form-label fw-bold">CPF/CNPJ</label>
                             <input type="text" class="form-control" name="fornecedorCPFCNPJ" id="fornecedornome"
                                 required value="{{ fornecedor.cpf_cnpj|default_if_none:'' }}">
                         </div>
-                        <div class="mb-3">
-                            <label for="productName" class="form-label">Nome</label>
-                            <input type="text" class="form-control" name="fornecedorNome" id="fornecedornome" required
-                                value="{{ fornecedor.nome|default_if_none:'' }}">
-                        </div>
-                        <div class="mb-3">
-                            <label for="productName" class="form-label">Contato</label>
-                            <input type="text" class="form-control" name="fornecedorContato" id="fornecedorcontato"
-                                required value="{{ fornecedor.contato|default_if_none:'' }}">
-                        </div>
-                        <div class="mb-3">
-                            <label for="productName" class="form-label">Endereço</label>
-                            <input type="text" class="form-control" name="fornecedorEndereco" id="fornecedorendereco"
-                                required value="{{ fornecedor.endereco|default_if_none:'' }}">
-                        </div>
-                        <div class="mb-3">
-                            <label for="productName" class="form-label">Cidade</label>
-                            <input type="text" class="form-control" name="fornecedorCidade" id="fornecedorcidade"
-                                required value="{{ fornecedor.cidade|default_if_none:'' }}">
+                        <div class="row">
+                            <div class="col-md-8 mb-3">
+                                <label for="productName" class="form-label fw-bold">Nome</label>
+                                <input type="text" class="form-control" name="fornecedorNome" id="fornecedornome"
+                                    required value="{{ fornecedor.nome|default_if_none:'' }}">
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="productName" class="form-label fw-bold">Contato</label>
+                                <input type="text" class="form-control" name="fornecedorContato" id="fornecedorcontato"
+                                    required value="{{ fornecedor.contato|default_if_none:'' }}">
+                            </div>
+
+                            <div class="col-md-8 mb-3">
+                                <label for="productName" class="form-label fw-bold">Endereço</label>
+                                <input type="text" class="form-control" name="fornecedorEndereco"
+                                    id="fornecedorendereco" required
+                                    value="{{ fornecedor.endereco|default_if_none:'' }}">
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="productName" class="form-label fw-bold">Cidade</label>
+                                <input type="text" class="form-control" name="fornecedorCidade" id="fornecedorcidade"
+                                    required value="{{ fornecedor.cidade|default_if_none:'' }}">
+                            </div>
                         </div>
                         <div class="form-check mb-3">
                             <input class="form-check-input" type="checkbox" value="Ativo" id="fornecedorStatus"
@@ -115,8 +119,8 @@
                     <!-- Filtro de status -->
                     <select name="status_filtro" class="form-select form-select-sm" style="min-width: 100px;">
                         <option value="">Todos</option>
-                        <option value="Ativo" >Ativo</option>
-                        <option value="Inativo" >Inativo</option>
+                        <option value="Ativo">Ativo</option>
+                        <option value="Inativo">Inativo</option>
                     </select>
                 </form>
             </div>
@@ -175,7 +179,8 @@
                     <!-- Paginação -->
                     {% if fornecedores.paginator.num_pages > 1 %}
                     <div class="pagination mt-3 d-flex justify-content-center">
-                        <span class="me-2">Página {{ fornecedores.number }} de {{fornecedores.paginator.num_pages}}</span>
+                        <span class="me-2">Página {{ fornecedores.number }} de
+                            {{fornecedores.paginator.num_pages}}</span>
                         {% if fornecedores.has_previous %}
                         <a class="btn btn-outline-primary btn-sm me-1" href="?page=1">Primeira</a>
                         <a class="btn btn-outline-primary btn-sm me-1"

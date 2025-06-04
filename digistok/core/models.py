@@ -23,3 +23,16 @@ class Fornecedor(models.Model):
 
     def __str__(self):
         return self.nome
+
+
+class Produto(models.Model):
+    codigo = models.IntegerField(unique=True)
+    descricao = models.CharField(max_length=200)
+    foto = models.ImageField(upload_to='produtos/', blank=True, null=True)
+    unidade_medida = models.CharField(max_length=200)
+    fornecedor = models.ForeignKey(Fornecedor, on_delete=models.CASCADE)
+    categoria = models.ForeignKey(Categoria, on_delete=models.CASCADE)
+    detalhes = models.TextField(blank=True, null=True)
+
+    def __str__(self):
+        return self.descricao

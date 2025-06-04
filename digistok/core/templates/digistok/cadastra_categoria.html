@@ -17,7 +17,7 @@
                         <div class="alert alert-danger">{{ erro }}</div>
                         {% endif %}
                         <div class="mb-3">
-                            <label for="categoriaNome" class="form-label">Nome da Categoria</label>
+                            <label for="categoriaNome" class="form-label fw-bold">Nome da Categoria</label>
                             <input type="text" class="form-control" id="categoryName" name="categoriaNome" required
                                 value="{{ categoria.nome|default_if_none:'' }}">
                         </div>
