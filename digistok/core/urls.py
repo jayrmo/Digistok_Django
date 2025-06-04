@@ -9,10 +9,17 @@ urlpatterns = [
     
     # # CRUD
     path('cadastra_produto', CadastraProduto.as_view(), name='cadastra_produto'),
-    path('cadastra_fornecedor', CadastraFornecedor.as_view(), name='cadastra_fornecedor'),
     path('cadastra_categoria', CadastraCategoria.as_view(), name='cadastra_categoria'),
     path('categoria/<int:pk>/editar/', EditaCategoria.as_view(), name='editar_categoria'),
     path('categoria/delete/<int:pk>/', ApagaCategoria.as_view(), name='apaga_categoria'),
+    path('categoria/apagar_selecionados/',ApagaCategoriasSelecionadas.as_view(), name='apaga_selecionadas'),
+
+    path('cadastra_fornecedor', CadastraFornecedor.as_view(), name='cadastra_fornecedor'),
+    path('fornecedor/<int:pk>/editar/', EditaFornecedor.as_view(), name='editar_fornecedor'),
+    path('fornecedor/delete/<int:pk>/', ApagaFornecedor.as_view(), name='apaga_fornecedor'),
+    path('fornecedor/apagar_selecionados/',ApagaFornecedoresSelecionados.as_view(), name='apaga_selecionados'),
+    
+    
     # path('noticia_form', Noticia_form.as_view(), name='noticia_form'),
     # path('nova-noticia/', NoticiaCreateView.as_view(), name='nova-noticia'),
 
