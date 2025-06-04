@@ -4,7 +4,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // botão do dropdown precisa ter o atributo data-bs-toggle="dropdown", data-dropdown="btn" e data-target="id do UL"
     // O <input type="hidden"> precisa de: data-dropdown="input"
     // <a> do menu precisa de data-id e data-name
-    
+
     const dropdowns = document.querySelectorAll('[data-dropdown="container"]');
 
     dropdowns.forEach(container => {
@@ -12,6 +12,9 @@ document.addEventListener('DOMContentLoaded', function () {
         const hiddenInput = container.querySelector('[data-dropdown="input"]');
         const menuId = dropdownBtn.getAttribute('data-target');
         const menu = document.getElementById(menuId);
+        const btn = container.querySelector('[data-dropdown="btn"]');
+        const entrada = container.querySelector('[data-dropdown="input"]');
+        const items = container.querySelectorAll('.dropdown-item');
 
         if (!dropdownBtn || !hiddenInput || !menu) return;
 
@@ -25,10 +28,28 @@ document.addEventListener('DOMContentLoaded', function () {
                 hiddenInput.value = id;
             });
         });
+
+        // Atualiza o texto do botão conforme o valor do input escondido
+        if (entrada.value) {
+            let selected = Array.from(items).find(item => item.getAttribute('data-name') === entrada.value);
+            if (selected) {
+                btn.textContent = entrada.value;
+            }
+        }
+
+        // Atualiza o input e botão ao clicar em item
+        items.forEach(item => {
+            item.addEventListener('click', e => {
+                e.preventDefault();
+                const name = item.getAttribute('data-name');
+                entrada.value = name;
+                btn.textContent = name;
+            });
+        });
     });
 
 
-    
+
     // Previe para Foto
     const input = document.querySelector('#photo');
     const preview = document.querySelector('#photoPreview');
@@ -48,8 +69,33 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
     }
+    // Função para resetar o formulário
+    const limparBtn = document.querySelector('#btn-limpar');
+    const form = document.querySelector('#productForm');
 
-    
+    // if (!limparBtn || !form) return;
+
+    limparBtn.addEventListener('click', function () {
+        form.reset();
+
+        // Resetar botões dos dropdowns
+        form.querySelectorAll('[data-dropdown="btn"]').forEach(btn => {
+            btn.textContent = "Selecione";
+        });
+
+        // Resetar os inputs hidden
+        form.querySelectorAll('[data-dropdown="input"]').forEach(input => {
+            input.value = "";
+        });
+
+        // Esconder o preview da imagem
+        if (preview) {
+            preview.src = "#";
+            preview.style.display = "none";
+        }
+    });
+
+
 
 });
 
@@ -182,10 +228,7 @@ document.addEventListener('DOMContentLoaded', function () {
 //     }
 // }
 
-// Função para resetar o formulário
-// function resetForm() {
-//     document.getElementById('productForm').reset();
-// }
+
 
 // Função para submeter o formulário
 // document.getElementById('productForm').addEventListener('submit', function (e) {

@@ -18,7 +18,8 @@
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label for="productCode" class="form-label fw-bold">Código</label>
-                                <input type="number" class="form-control" id="productCode" name="codigo" required>
+                                <input type="number" class="form-control" id="productCode" name="codigo" required
+                                    value="{{ produto.codigo|default_if_none:'' }}">
                             </div>
                             <div class="col-md-6 mb-3 file-upload">
                                 <label for="photo" class="form-label">Foto</label>
@@ -26,12 +27,20 @@
                                 <div class="mt-2">
                                     <img id="photoPreview" src="#" alt="Preview da imagem" class="img-thumbnail"
                                         style="max-height: 150px; display: none;">
+                                    {% if produto.foto %}
+                                    <img id="photoPreview" src="{{ produto.foto.url }}" alt="Preview da imagem"
+                                        class="img-thumbnail" style="max-height: 150px;">
+                                    {% else %}
+                                    <img id="photoPreview" src="#" alt="Preview da imagem" class="img-thumbnail"
+                                        style="max-height: 150px; display:none;">
+                                    {% endif %}
                                 </div>
                             </div>
                         </div>
                         <div class="col-md-6 mb-3">
                             <label for="description" class="form-label fw-bold">Descrição</label>
-                            <input type="text" class="form-control" id="description" name="descricao">
+                            <input type="text" class="form-control" id="description" name="descricao"
+                                value="{{ produto.descricao|default_if_none:'' }}">
                         </div>
                         <!-- Quantidade -->
                         <!-- <div class="mb-3">
@@ -47,15 +56,16 @@
                                     data-bs-toggle="dropdown" data-dropdown="btn" data-target="menu0">
                                     Selecione a unidade
                                 </button>
-                                <input type="hidden" data-dropdown="input" name="unidade">
+                                <input type="hidden" data-dropdown="input" name="unidade"
+                                    value="{{ produto.unidade_medida|default_if_none:'' }}">
                                 <ul class="dropdown-menu" id="menu0">
                                     <li><a class="dropdown-item" href="#" data-name="Unidade" data-id="">Unidade</a>
                                     </li>
-                                    <li><a class="dropdown-item" href="#" data-name="Pacote" data-id="">Pacote</a></li>
-                                    <li><a class="dropdown-item" href="#" data-name="Caixa" data-id="">Caixa</a></li>
-                                    <li><a class="dropdown-item" href="#" data-name="Saco" data-id="">Saco</a></li>
-                                    <li><a class="dropdown-item" href="#" data-name="Par" data-id="">Par</a></li>
-                                    <li><a class="dropdown-item" href="#" data-name="Dúzia" data-id="">Dúzia</a></li>
+                                    <li><a class="dropdown-item" href="#" data-name="Pacote" data-id="Pacote">Pacote</a></li>
+                                    <li><a class="dropdown-item" href="#" data-name="Caixa" data-id="Caixa">Caixa</a></li>
+                                    <li><a class="dropdown-item" href="#" data-name="Saco" data-id="Saco">Saco</a></li>
+                                    <li><a class="dropdown-item" href="#" data-name="Par" data-id="Par">Par</a></li>
+                                    <li><a class="dropdown-item" href="#" data-name="Dúzia" data-id="Dúzia">Dúzia</a></li>
                                 </ul>
                             </div>
                         </div>
@@ -69,7 +79,8 @@
                                     data-dropdown="btn" data-target="menu1" data-bs-toggle="dropdown">
                                     Selecione o fornecedor
                                 </button>
-                                <input type="hidden" name="fornecedor" data-dropdown="input">
+                                <input type="hidden" name="fornecedor" data-dropdown="input"
+                                    value="{{ produto.fornecedor|default_if_none:'' }}">
                                 <ul class="dropdown-menu w-50 overflow-auto" style="max-height: 300px;" id="menu1">
                                     {% for fornecedor in fornecedores %}
                                     <li>
@@ -102,7 +113,8 @@
                                     data-bs-target="#categoryModal">
                                     <i class="bi bi-gear"></i> Gerenciar
                                 </button>
-                                <input type="hidden" name="categoria" data-dropdown="input">
+                                <input type="hidden" name="categoria" data-dropdown="input"
+                                    value="{{ produto.categoria|default_if_none:'' }}">
                                 <ul class="dropdown-menu w-50 overflow-auto" style="max-height: 300px;" id="menu2">
                                     {% for categoria in categorias %}
                                     <li>
@@ -122,7 +134,7 @@
                         <div class="mb-3">
                             <label for="detalhes" class="form-label">Detalhes</label>
                             <textarea class="form-control" id="details" name="detalhes" rows="4"
-                                placeholder="Informações adicionais..."></textarea>
+                                placeholder="Informações adicionais...">{{ produto.detalhes|default_if_none:'' }}</textarea>
                         </div>
                         {% if messages %}
                         <div class="mt-3">
@@ -140,7 +152,7 @@
                         {% endif %}
                         <!-- Botões -->
                         <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                            <button type="button" class="btn btn-secondary me-md-2" onclick="resetForm()">
+                            <button type="button" class="btn btn-secondary me-md-2" id="btn-limpar">
                                 <i class="bi bi-x-circle"></i> Limpar
                             </button>
                             <button type="submit" class="btn btn-primary">
