@@ -31,13 +31,6 @@
         </a>
         <!-- Submenu Cadastro -->
         <div class="sub-menu collapse" id="submenu-cadastro">
-            <a class="nav-link" href="{% url 'cadastra_produto' %}">
-                <span class="icon">
-                    <i class="bi bi-upc-scan">
-                    </i>
-                </span>
-                <span class="description">Produto</span>
-            </a>
             <a class="nav-link" href="{% url 'cadastra_categoria' %}">
                 <span class="icon">
                     <i class="bi bi-tags">
@@ -51,6 +44,13 @@
                     </i>
                 </span>
                 <span class="description">Fornecedor</span>
+            </a>
+            <a class="nav-link" href="{% url 'cadastra_produto' %}">
+                <span class="icon">
+                    <i class="bi bi-upc-scan">
+                    </i>
+                </span>
+                <span class="description">Produto</span>
             </a>
             <a class="nav-link" href="{% url 'cadastra_local' %}">
                 <span class="icon">
@@ -81,13 +81,7 @@
                 </span>
                 <span class="description">Movimentações</span>
             </a>
-            <!-- <a class="nav-link" href="#">
-                <span class="icon">
-                    <i class="bi bi-arrow-left-right">
-                    </i>
-                </span>
-                <span class="description">Transferências</span>
-            </a> -->
+
         </div>
         <!-- Relátorio -->
         <a class="nav-link" href="{% url 'relatorio_movimentacoes' %}">
@@ -109,25 +103,14 @@
                 <span class="description">{{ user.get_full_name|default:user.username }}</span>
             </a>
         <div class="dropdown-menu sub-menu">
-            <!-- <a class="dropdown-item nav-link" href="#">
-                <span class="icon">
-                    <i class="bi bi-person"></i>
-                </span>
-                <span class="description">Perfil</span>
-            </a> -->
+            
             <a class="dropdown-item nav-link" href="{% url 'password_change_custom' %}">
                 <span class="icon">
                     <i class="bi bi-key"></i>
                 </span>
                 <span class="description">Alterar Senha</span>
             </a>
-            <!-- <a class="dropdown-item nav-link" href="">
-                <span class="icon">
-                    <i class="bi-box-arrow-right"></i>
-                </span>
-                <span class="description">Sair</span>
-                
-            </a> -->
+            
             <form method="post" action="{% url 'logout' %}" style="display: inline-block; width: 100%;">
                 {% csrf_token %}
                 <button type="submit" class="dropdown-item nav-link" style="

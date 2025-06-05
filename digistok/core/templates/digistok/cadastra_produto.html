@@ -49,14 +49,7 @@
                             <input type="text" class="form-control" id="description" name="descricao"
                                 value="{{ produto.descricao|default_if_none:'' }}">
                         </div>
-                        <!-- Quantidade -->
-                        <!-- <div class="mb-3">
-                            <label for="quantity" class="form-label">Quantidade</label>
-                            <input type="number" class="form-control" id="quantity" name="quantity" min="0" step="0.01"
-                                required>
-                        </div> -->
-
-                        <!-- Unidade de Medida -->
+              
                         <div class="mb-3">
                             <label for="unidade" class="form-label fw-bold">Unidade de Medida</label>
                             <select class="form-select w-50" name="unidade" id="unidade" required>
@@ -258,13 +251,7 @@
                         </button>
                     </div>
 
-                    <!-- Botão Editar alinhado à direita
-                    <div class="ms-auto">
-                        <a href="{% url 'editar_produto' produto.pk %}" class="btn btn-warning btn-sm">
-                            <i class="bi bi-pencil-square"></i> Editar
-                        </a>
-                    </div> -->
-                    <!-- Botão Editar alinhado à direita -->
+          
                     <div class="ms-auto">
                         <div class="btn-group-actions">
                             <a href="{% url 'editar_produto' produto.pk %}" class="btn btn-warning btn-sm">

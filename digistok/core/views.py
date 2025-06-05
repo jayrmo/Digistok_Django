@@ -253,10 +253,7 @@ class CadastraFornecedor(LoginRequiredMixin, View):
         busca = request.GET.get('busca')
         status_filtro = request.GET.get('status_filtro', '')
         fornecedores_lista = Fornecedor.objects.all().order_by('id')
-        # if busca:
-        #     fornecedores_lista = Fornecedor.objects.filter(
-        #         Q(cpf_cnpj__icontains=busca) | Q(nome__icontains=busca) | Q(status__iexact=busca)
-        #             ).order_by('id')
+        
 
         if busca and status_filtro:
             fornecedores_lista = Fornecedor.objects.filter(
@@ -422,32 +419,7 @@ class CadastraCategoria(LoginRequiredMixin, View):
         messages.success(request, f'Categoria "{nome}" salva com sucesso!')
         return redirect(origem)
     
-    # def post(self, request):
-    #     nome = request.POST.get('categoriaNome', '').strip()
-    #     nome_categoria_pagina_cadastra = request.POST.get('categoriaCadastra', '').strip()
-    #     if nome or nome_categoria_pagina_cadastra:
-    #         existe = Categoria.objects.filter(Q(nome=nome) | Q(nome=nome_categoria_pagina_cadastra)).exists()
-    #     if existe:
-    #         if nome_categoria_pagina_cadastra:
-    #             messages.error(request, f'A categoria "{nome}" já está cadastrada.')
-    #             return redirect('cadastra_produto')
-    #         else:
-    #             messages.error(request, f'A categoria "{nome}" já está cadastrada.')
-    #             return redirect('cadastra_categoria')
-    #     if nome or nome_categoria_pagina_cadastra:
-    #         if nome_categoria_pagina_cadastra:
-    #             Categoria.objects.create(nome=nome_categoria_pagina_cadastra)
-    #             messages.success(self.request, f'Categoria "{ nome }" salva com sucesso!')
-    #             return redirect('cadastra_produto')
-    #         else:
-    #             Categoria.objects.create(nome=nome)
-    #             messages.success(self.request, f'Categoria "{ nome }" salva com sucesso!')
-    #             return redirect('cadastra_categoria')
-    #     else:
-    #         messages.error(self.request, "O nome da categoria não pode estar em branco.")
-    #         return redirect('cadastra_categoria')
-                     
-
+    
 # Edita Categoria
 class EditaCategoria(LoginRequiredMixin, View):
     model = Categoria
@@ -839,78 +811,6 @@ class RelatorioMovimentacoesView(LoginRequiredMixin, View):
         return render(request, self.template_name, context)
 
 
-
-
-
-
-
-
-
-# Dashboard
-# class DashboardMovimentacoesView(TemplateView):
-#     template_name = 'digistok/homepage.html'
-
-#     def get_context_data(self, **kwargs):
-#         context = super().get_context_data(**kwargs)
-#         # Total Products Registered
-#         context['total_produtos'] = Produto.objects.count()
-
-#         total_entradas = MovimentacaoEstoque.objects.filter(
-#             tipo='ENTRADA'
-#         ).aggregate(Sum('quantidade'))['quantidade__sum'] or 0
-
-        
-#         total_saidas = MovimentacaoEstoque.objects.filter(
-#             tipo='SAIDA'
-#         ).aggregate(Sum('quantidade'))['quantidade__sum'] or 0
-
-        
-#         total_transferencias_destino = MovimentacaoEstoque.objects.filter(
-#             tipo='TRANSFERENCIA',
-#             estoque_destino__isnull=False
-#         ).aggregate(Sum('quantidade'))['quantidade__sum'] or 0
-
-        
-#         total_transferencias_origem = MovimentacaoEstoque.objects.filter(
-#             tipo='TRANSFERENCIA',
-#             estoque_origem__isnull=False 
-#         ).aggregate(Sum('quantidade'))['quantidade__sum'] or 0
-        
-       
-#         context['quantidade_total_em_estoque'] = (total_entradas + total_transferencias_destino) - \
-#                                                  (total_saidas + total_transferencias_origem)
-
-#         context['total_locais_ativos'] = Local.objects.filter(status='Ativo').count()
-
-
-#         # --- 2. Data for Charts ---
-#         # Products by Category (for Pie Chart)
-#         # Groups products by their category name and counts them
-#         produtos_por_categoria_qs = Produto.objects.values('categoria__nome').annotate(count=Count('id')).order_by('categoria__nome')
-        
-#         # Converts the QuerySet into a Python dictionary. Handles products without a category.
-#         produtos_por_categoria_dict = {
-#             item['categoria__nome'] if item['categoria__nome'] else 'Sem Categoria': item['count'] 
-#             for item in produtos_por_categoria_qs
-#         }
-#         # Serializes the dictionary to a JSON string for JavaScript consumption
-#         context['produtos_por_categoria_json'] = json.dumps(produtos_por_categoria_dict)
-        
-#         # Quantity by Stock Location (for Bar Chart)
-#         # This calculates the total quantity of items that have *entered* each stock location
-#         # (either directly as 'ENTRADA' or as a 'TRANSFERENCIA' to that location).
-#         quantidade_por_estoque_qs = MovimentacaoEstoque.objects.filter(
-#             Q(tipo='ENTRADA') | Q(tipo='TRANSFERENCIA', estoque_destino__isnull=False)
-#         ).values('estoque_destino__descricao').annotate(total_quantidade=Sum('quantidade')).order_by('estoque_destino__descricao')
-
-#         # Converts the QuerySet to a Python dictionary. Handles cases where a destination might be null.
-#         quantidade_por_estoque_dict = {
-#             item['estoque_destino__descricao'] if item['estoque_destino__descricao'] else 'Local Não Informado': item['total_quantidade']
-#             for item in quantidade_por_estoque_qs
-#         }
-#         # Serializes the dictionary to a JSON string for JavaScript consumption
-#         context['quantidade_por_estoque_json'] = json.dumps(quantidade_por_estoque_dict)
-
 #         return context
 class DashboardMovimentacoesView(LoginRequiredMixin, View):
     template_name = 'digistok/homepage.html'
@@ -1021,107 +921,4 @@ class PasswordChangeDoneCustomView(LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
         return render(request, self.template_name)
     
-    
-    
-    
-     
-# # INICIO CRUD MOVIMENTAÇÂO -------------------------
-# class MovimentacaoEstoqueView(LoginRequiredMixin, View):
-#     template_name = 'digistok/movimentacao_estoque.html'
-
-#     def get(self, request, pk=None):
-#         movimentacao = None
-#         if pk:
-#             movimentacao = get_object_or_404(MovimentacaoEstoque, pk=pk)
-
-#         produtos = Produto.objects.all().order_by('descricao')
-        
-#         # Lista de Movimentações
-#         movimentacoes_list = MovimentacaoEstoque.objects.all().order_by('-data') 
-        
-#         # Busca de Movimentações
-#         busca = request.GET.get('busca')
-#         if busca:
-#             movimentacoes_list = movimentacoes_list.filter(
-#                 Q(tipo__icontains=busca) |
-#                 Q(produto__descricao__icontains=busca) |
-#                 Q(estoque_origem__icontains=busca) |
-#                 Q(estoque_destino__icontains=busca) |
-#                 Q(usuario_responsavel__username__icontains=busca)
-#             )
-
-#         paginator = Paginator(movimentacoes_list, 10)
-#         page_number = request.GET.get('page')
-#         movimentacoes = paginator.get_page(page_number)
-
-#         context = {
-#             'movimentacao': movimentacao,
-#             'produtos': produtos,
-#             'movimentacoes': movimentacoes,
-#             'busca': busca,
-#         }
-#         return render(request, self.template_name, context)
-
-#     def post(self, request, pk=None):
-#         if pk:
-#             movimentacao = get_object_or_404(MovimentacaoEstoque, pk=pk)
-#         else:
-#             movimentacao = MovimentacaoEstoque()
-
-        
-#         movimentacao.tipo = request.POST.get('tipo')
-#         produto_id = request.POST.get('produto')
-#         movimentacao.estoque_origem = request.POST.get('estoque_origem', '').strip()
-#         movimentacao.estoque_destino = request.POST.get('estoque_destino', '').strip()
-#         movimentacao.detalhes = request.POST.get('detalhes', '').strip()
-#         movimentacao.usuario_responsavel = request.user
-
-#         try:
-#             movimentacao.produto = Produto.objects.get(id=produto_id)
-#         except Produto.DoesNotExist:
-#             messages.error(request, 'Produto inválido. Selecione um produto existente.')
-            
-#             produtos = Produto.objects.all().order_by('descricao')
-#             movimentacoes_list = MovimentacaoEstoque.objects.all().order_by('-data')
-#             paginator = Paginator(movimentacoes_list, 10)
-#             page_number = request.GET.get('page')
-#             movimentacoes = paginator.get_page(page_number)
-#             return render(request, self.template_name, {
-#                 'movimentacao': movimentacao,
-#                 'produtos': produtos,
-#                 'movimentacoes': movimentacoes,
-#             })
-
-#         try:
-#             movimentacao.full_clean() 
-#             movimentacao.save()
-#             messages.success(request, "Movimentação salva com sucesso!")
-#             return redirect('movimentacao_estoque')
-#         except ValidationError as e:
-#             for field, errors in e.message_dict.items():
-#                 for error in errors:
-#                     messages.error(request, f"{field.replace('_', ' ').capitalize()}: {error}")
-            
-#             produtos = Produto.objects.all().order_by('descricao')
-#             movimentacoes_list = MovimentacaoEstoque.objects.all().order_by('-data')
-#             paginator = Paginator(movimentacoes_list, 10)
-#             page_number = request.GET.get('page')
-#             movimentacoes = paginator.get_page(page_number)
-#             return render(request, self.template_name, {
-#                 'movimentacao': movimentacao,
-#                 'produtos': produtos,
-#                 'movimentacoes': movimentacoes,
-#             })
-
-# # Don't forget your delete view:
-# class ApagaMovimentacoesSelecionadasView(LoginRequiredMixin, View):
-#     def post(self, request):
-#         movimentacao_ids = request.POST.getlist('movimentacoes_selecionadas')
-#         if movimentacao_ids:
-#             # Add a check to prevent deleting if associated with an important record (e.g., protect)
-#             MovimentacaoEstoque.objects.filter(id__in=movimentacao_ids).delete()
-#             messages.success(request, "Movimentações selecionadas excluídas com sucesso!")
-#         else:
-#             messages.warning(request, "Nenhuma movimentação foi selecionada para exclusão.")
-#         return redirect('movimentacao_estoque')
 

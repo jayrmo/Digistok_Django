@@ -6,10 +6,6 @@ document.addEventListener('DOMContentLoaded', function () {
         checkboxes.forEach(checkbox => checkbox.checked = this.checked);
     });
 
-    // function resetForm() {
-    //     document.getElementById('localForm').reset();
-    // }
-
 
     // Função para resetar o formulário
     const limparBtn = document.querySelector('#btn-limpar');

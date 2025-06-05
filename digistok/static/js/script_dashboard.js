@@ -140,7 +140,6 @@ function renderQuantidadePorEstoqueChart(data) {
 
 }
 
-// Quando o DOM estiver completamente carregado, renderiza os gráficos
 document.addEventListener('DOMContentLoaded', function () {
     // Estas variáveis globais são definidas no template HTML
     if (typeof produtosPorCategoriaJson !== 'undefined') {
