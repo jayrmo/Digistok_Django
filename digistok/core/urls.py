@@ -25,7 +25,11 @@ urlpatterns = [
     path('fornecedor/delete/<int:pk>/', ApagaFornecedor.as_view(), name='apaga_fornecedor'),
     path('fornecedor/apagar_selecionados/', ApagaFornecedoresSelecionados.as_view(), name='apaga_selecionados'),
     
-    
+    # CRUD MOVIMENTAÇÂO
+    path('movimentacao-estoque/', MovimentacaoEstoqueView.as_view(), name='movimentacao_estoque'),
+    path('movimentacao-estoque/editar/<int:pk>/', MovimentacaoEstoqueView.as_view(), name='editar_movimentacao'),
+    path('movimentacao-estoque/excluir-selecionados/', ApagaMovimentacoesSelecionadasView.as_view(), name='apaga_movimentacoes_selecionadas'),
+    # .
     # path('noticia_form', Noticia_form.as_view(), name='noticia_form'),
     # path('nova-noticia/', NoticiaCreateView.as_view(), name='nova-noticia'),
 

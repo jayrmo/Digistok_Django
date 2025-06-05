@@ -1,10 +1,16 @@
+from django.contrib.auth.models import User
 from django.db import models
+
 
 STATUS_CHOICES = [
     ('Ativo', 'Ativo'),
     ('Inativo', 'Inativo'),
 ]
-
+TIPO_CHOICES = [
+        ('ENTRADA', 'Entrada'),
+        ('SAIDA', 'Saída'),
+        ('TRANSFERENCIA', 'Transferência'),
+    ]
 # Create your models here.
 class Categoria(models.Model):
     nome = models.CharField(max_length=50, unique=True)
@@ -36,3 +42,15 @@ class Produto(models.Model):
 
     def __str__(self):
         return self.descricao
+    
+    
+class MovimentacaoEstoque(models.Model):
+    tipo = models.CharField(max_length=20,choices=TIPO_CHOICES)
+    estoque_origem = models.CharField(max_length=200,blank=True,null=True)
+    estoque_destino = models.CharField( max_length=200,blank=True,null=True)
+    data = models.DateTimeField(auto_now_add=True)
+    usuario_responsavel = models.ForeignKey(User,on_delete=models.PROTECT)
+    produto = models.ForeignKey( 'Produto',on_delete=models.PROTECT)
+
+    def _str_(self):
+        return f'{self.tipo} - {self.produto} - {self.data.strftime("%d/%m/%Y %H:%M")}'    

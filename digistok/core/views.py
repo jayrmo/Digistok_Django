@@ -4,6 +4,7 @@ from django.db.models.signals import post_delete, pre_save
 from django.views.decorators.cache import never_cache
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
+from django.core.exceptions import ValidationError
 from django.http import HttpResponseRedirect
 from django.views.generic import DeleteView
 from django.core.paginator import Paginator
@@ -479,4 +480,107 @@ class ApagaCategoriasSelecionadas(View):
             messages.warning(request, "Nenhuma categoria foi selecionada para exclusão.")
         return redirect('cadastra_categoria')    
     
+# FIM CRUD CATEGORIA --------------------------
 
+
+
+
+# INICIO CRUD MOVIMENTAÇÂO -------------------------
+class MovimentacaoEstoqueView(LoginRequiredMixin, View):
+    template_name = 'digistok/movimentacao_estoque.html'
+
+    def get(self, request, pk=None):
+        movimentacao = None
+        if pk:
+            movimentacao = get_object_or_404(MovimentacaoEstoque, pk=pk)
+
+        produtos = Produto.objects.all().order_by('descricao')
+        
+        # Lista de Movimentações
+        movimentacoes_list = MovimentacaoEstoque.objects.all().order_by('-data') 
+        
+        # Busca de Movimentações
+        busca = request.GET.get('busca')
+        if busca:
+            movimentacoes_list = movimentacoes_list.filter(
+                Q(tipo__icontains=busca) |
+                Q(produto__descricao__icontains=busca) |
+                Q(estoque_origem__icontains=busca) |
+                Q(estoque_destino__icontains=busca) |
+                Q(usuario_responsavel__username__icontains=busca)
+            )
+
+        paginator = Paginator(movimentacoes_list, 10)
+        page_number = request.GET.get('page')
+        movimentacoes = paginator.get_page(page_number)
+
+        context = {
+            'movimentacao': movimentacao,
+            'produtos': produtos,
+            'movimentacoes': movimentacoes,
+            'busca': busca,
+        }
+        return render(request, self.template_name, context)
+
+    def post(self, request, pk=None):
+        if pk:
+            movimentacao = get_object_or_404(MovimentacaoEstoque, pk=pk)
+        else:
+            movimentacao = MovimentacaoEstoque()
+
+        
+        movimentacao.tipo = request.POST.get('tipo')
+        produto_id = request.POST.get('produto')
+        movimentacao.estoque_origem = request.POST.get('estoque_origem', '').strip()
+        movimentacao.estoque_destino = request.POST.get('estoque_destino', '').strip()
+        movimentacao.detalhes = request.POST.get('detalhes', '').strip()
+        movimentacao.usuario_responsavel = request.user
+
+        try:
+            movimentacao.produto = Produto.objects.get(id=produto_id)
+        except Produto.DoesNotExist:
+            messages.error(request, 'Produto inválido. Selecione um produto existente.')
+            
+            produtos = Produto.objects.all().order_by('descricao')
+            movimentacoes_list = MovimentacaoEstoque.objects.all().order_by('-data')
+            paginator = Paginator(movimentacoes_list, 10)
+            page_number = request.GET.get('page')
+            movimentacoes = paginator.get_page(page_number)
+            return render(request, self.template_name, {
+                'movimentacao': movimentacao,
+                'produtos': produtos,
+                'movimentacoes': movimentacoes,
+            })
+
+        try:
+            movimentacao.full_clean() 
+            movimentacao.save()
+            messages.success(request, "Movimentação salva com sucesso!")
+            return redirect('movimentacao_estoque')
+        except ValidationError as e:
+            for field, errors in e.message_dict.items():
+                for error in errors:
+                    messages.error(request, f"{field.replace('_', ' ').capitalize()}: {error}")
+            
+            produtos = Produto.objects.all().order_by('descricao')
+            movimentacoes_list = MovimentacaoEstoque.objects.all().order_by('-data')
+            paginator = Paginator(movimentacoes_list, 10)
+            page_number = request.GET.get('page')
+            movimentacoes = paginator.get_page(page_number)
+            return render(request, self.template_name, {
+                'movimentacao': movimentacao,
+                'produtos': produtos,
+                'movimentacoes': movimentacoes,
+            })
+
+# Don't forget your delete view:
+class ApagaMovimentacoesSelecionadasView(LoginRequiredMixin, View):
+    def post(self, request):
+        movimentacao_ids = request.POST.getlist('movimentacoes_selecionadas')
+        if movimentacao_ids:
+            # Add a check to prevent deleting if associated with an important record (e.g., protect)
+            MovimentacaoEstoque.objects.filter(id__in=movimentacao_ids).delete()
+            messages.success(request, "Movimentações selecionadas excluídas com sucesso!")
+        else:
+            messages.warning(request, "Nenhuma movimentação foi selecionada para exclusão.")
+        return redirect('movimentacao_estoque')
