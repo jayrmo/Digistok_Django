@@ -29,7 +29,7 @@ O sistema foi desenvolvido com as seguintes tecnologias e ferramentas:
 - *Linguagens:* Python, HTML5, CSS3, JavaScript
 - *Framework principal:* Django (backend e sistema de templates)
 - *Bibliotecas e ferramentas adicionais:*
-  - Bootstrap (estilização e responsividade)
+  - Bootstrap
 - *Banco de Dados:* Postrgrees
 - *Gerenciamento de arquivos estáticos:* Django Staticfiles
 - *Controle de versão:* Git e GitHub
@@ -38,24 +38,29 @@ O sistema foi desenvolvido com as seguintes tecnologias e ferramentas:
 ### 📁 Estrutura:
 
 ```
-portalBrasil/
+digistok/
 ├── core/
 │   ├── models.py
 │   ├── urls.py
 │   ├── views.py
 │   ├── templates/
-│   │   └── noticias/
-│   │       └── home_adm.html
+│   │   └── digistok/
+│   │       └── login.html
 │   │       └── homepage.html
 │   │       └── ...
 │   ├── templatetags/
 │   │   └── core_tags.py
 ├── media/
-│   └── imagens/
-│   └── noticias/
-│       └── imagem1.jpg ...
+│   └── images/
+│   └── digistok/
+│       └── produto/
+│           └── produto.png...
+│   └── digistok/
+|
 ├── static/
-│   └── noticia/
+│   └── css/
+│   └── icon/
+│   └── js/
 │       └── css/style_adm.css
 │       └── css/style_login.css
 │       └── css/styles.css
@@ -80,9 +85,9 @@ pip install -r requirements.txt
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'biblioteca',
-        'USER': 'seu_usuario',
-        'PASSWORD': 'sua_senha',
+        'NAME': 'digistok',
+        'USER': 'digistok',
+        'PASSWORD': 'digistok',
         'HOST': 'localhost',
         'PORT': '5432',
     }
@@ -103,8 +108,8 @@ python manage.py runserver
 
 ### 5. Acesse a aplicação
 
-- Visite [http://localhost:8000](http://localhost:8000) para página dashboard.
-- Visite [http://localhost:8000/login](http://localhost:8000/login) para logar como administrador do site.
+- Visite [http://localhost:8000](http://localhost:8000) para página de login.
+- Visite [http://localhost:8000/login](http://localhost:8000/homepage) para página de dashboard.
 
 
 ---
