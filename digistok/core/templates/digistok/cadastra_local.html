@@ -113,9 +113,12 @@
                         </div>
                         <!-- Botão que muda a cor conforme status -->
                         <div style="width: 135px;">
+                            <a href="{% url 'editar_local' local.pk %}">
                             <span class="badge {% if local.status == 'Ativo' %}bg-success{% else %}bg-danger{% endif %}">
                                 {{ local.status }}
                             </span>
+                            
+                        </a>
                         </div>
                         <div style="width: 100px;">
                             <a href="{% url 'editar_local' local.pk %}" class="btn btn-warning btn-sm me-2">
