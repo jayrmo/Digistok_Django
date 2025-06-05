@@ -5,10 +5,8 @@ from .views import *
 
 urlpatterns = [
     # Páginas de Home
-    # path('homepage/', HomePage.as_view(), name='homepage'),
     path('homepage/', DashboardMovimentacoesView.as_view(), name='homepage'),
     path('relatorio/movimentacoes/', RelatorioMovimentacoesView.as_view(), name='relatorio_movimentacoes'),
-    # path('dashboard/', DashboardMovimentacoesView.as_view(), name='dashboard_movimentacoes'),
     
     # # CRUD PRODUTO
     path('cadastra_produto', CadastraProduto.as_view(), name='cadastra_produto'),
@@ -40,5 +38,11 @@ urlpatterns = [
     path('local/delete/<int:pk>/', ApagaLocal.as_view(), name='apaga_local'),
     path('local/apagar_selecionados/', ApagaLocaisSelecionados.as_view(), name='apaga_locais_selecionados'),
 
+    # Sua URL para alterar a senha com seu formulário customizado
+    path('minha-senha/alterar/', PasswordChangeCustomView.as_view(), name='password_change_custom'),
+
+    # URL para a página de sucesso após a alteração
+    path('minha-senha/alterar/sucesso/', PasswordChangeDoneCustomView.as_view(), name='password_change_done_custom'),
+    
 
 ]

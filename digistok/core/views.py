@@ -989,6 +989,42 @@ class DashboardMovimentacoesView(LoginRequiredMixin, View):
         }
         
         return render(request, self.template_name, context)
+    
+    
+    
+# CRUD USER
+from .forms import CustomPasswordChangeForm # Importe seu formulário customizado
+
+class PasswordChangeCustomView(LoginRequiredMixin, View):
+    template_name = 'registration/password_change_form_custom.html' # Seu novo template HTML
+    success_url = reverse_lazy('password_change_done_custom') # Nova URL de sucesso
+
+    def get(self, request, *args, **kwargs):
+        form = CustomPasswordChangeForm(user=request.user)
+        return render(request, self.template_name, {'form': form})
+
+    def post(self, request, *args, **kwargs):
+        form = CustomPasswordChangeForm(user=request.user, data=request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Sua senha foi alterada com sucesso!")
+            return redirect(self.success_url)
+        else:
+            # Se o formulário não for válido, renderiza o template novamente com os erros
+            # E adiciona uma mensagem de erro genérica
+            messages.error(request, "Houve um erro ao tentar alterar sua senha. Por favor, verifique os campos.")
+            return render(request, self.template_name, {'form': form})
+
+class PasswordChangeDoneCustomView(LoginRequiredMixin, View):
+    template_name = 'registration/password_change_done_custom.html'
+
+    def get(self, request, *args, **kwargs):
+        return render(request, self.template_name)
+    
+    
+    
+    
+     
 # # INICIO CRUD MOVIMENTAÇÂO -------------------------
 # class MovimentacaoEstoqueView(LoginRequiredMixin, View):
 #     template_name = 'digistok/movimentacao_estoque.html'
