@@ -30,6 +30,13 @@
                                     {% if produto.foto %}
                                     <img id="photoPreview" src="{{ produto.foto.url }}" alt="Preview da imagem"
                                         class="img-thumbnail" style="max-height: 150px;">
+                                    <div class="form-check mt-1">
+                                        <input class="form-check-input" type="checkbox" id="clearPhoto"
+                                            name="foto_clear">
+                                        <label class="form-check-label" for="clearPhoto">
+                                            Remover foto atual
+                                        </label>
+                                    </div>
                                     {% else %}
                                     <img id="photoPreview" src="#" alt="Preview da imagem" class="img-thumbnail"
                                         style="max-height: 150px; display:none;">
@@ -48,86 +55,60 @@
                             <input type="number" class="form-control" id="quantity" name="quantity" min="0" step="0.01"
                                 required>
                         </div> -->
+
+                        <!-- Unidade de Medida -->
                         <div class="mb-3">
                             <label for="unidade" class="form-label fw-bold">Unidade de Medida</label>
-                            <!-- Unidade -->
-                            <div class="dropdown" data-dropdown="container">
-                                <button class="btn btn-outline-secondary dropdown-toggle" type="button"
-                                    data-bs-toggle="dropdown" data-dropdown="btn" data-target="menu0">
-                                    Selecione a unidade
-                                </button>
-                                <input type="hidden" data-dropdown="input" name="unidade"
-                                    value="{{ produto.unidade_medida|default_if_none:'' }}">
-                                <ul class="dropdown-menu" id="menu0">
-                                    <li><a class="dropdown-item" href="#" data-name="Unidade" data-id="">Unidade</a>
-                                    </li>
-                                    <li><a class="dropdown-item" href="#" data-name="Pacote" data-id="Pacote">Pacote</a></li>
-                                    <li><a class="dropdown-item" href="#" data-name="Caixa" data-id="Caixa">Caixa</a></li>
-                                    <li><a class="dropdown-item" href="#" data-name="Saco" data-id="Saco">Saco</a></li>
-                                    <li><a class="dropdown-item" href="#" data-name="Par" data-id="Par">Par</a></li>
-                                    <li><a class="dropdown-item" href="#" data-name="Dúzia" data-id="Dúzia">Dúzia</a></li>
-                                </ul>
-                            </div>
+                            <select class="form-select w-50" name="unidade" id="unidade" required>
+                                <option value="">--------</option>
+                                <option value="Unidade" {% if produto.unidade_medida == "Unidade" %}selected{% endif %}>Unidade</option>
+                                <option value="Pacote" {% if produto.unidade_medida == "Pacote" %}selected{% endif %}>Pacote</option>
+                                <option value="Caixa" {% if produto.unidade_medida == "Caixa" %}selected{% endif %}>Caixa </option>
+                                <option value="Saco" {% if produto.unidade_medida == "Saco" %}selected{% endif %}>Saco</option>
+                                <option value="Par" {% if produto.unidade_medida == "Par" %}selected{% endif %}>Par</option>
+                                <option value="Dúzia" {% if produto.unidade_medida == "Dúzia" %}selected{% endif %}>Dúzia</option>
+                            </select>
                         </div>
 
                         <!-- Fornecedor -->
                         <div class="mb-3">
-                            <label for="fornecedor" class="form-label fw-bold">Fornecedor</label>
-                            <!-- Fornecedor -->
-                            <div class="dropdown" data-dropdown="container">
-                                <button class="btn btn-outline-secondary dropdown-toggle w-50" type="button"
-                                    data-dropdown="btn" data-target="menu1" data-bs-toggle="dropdown">
-                                    Selecione o fornecedor
-                                </button>
-                                <input type="hidden" name="fornecedor" data-dropdown="input"
-                                    value="{{ produto.fornecedor|default_if_none:'' }}">
-                                <ul class="dropdown-menu w-50 overflow-auto" style="max-height: 300px;" id="menu1">
+                            <label for="fornecedor" class="form-label fw-bold me-2">Fornecedor</label>
+                            <div class="mb-3 d-flex align-items-center gap-2">
+                                <select class="form-select w-50" name="fornecedor" id="fornecedor" required>
+                                    <option value="">--------</option>
                                     {% for fornecedor in fornecedores %}
-                                    <li>
-                                        <a class="dropdown-item" href="#" data-id="{{ fornecedor.id }}"
-                                            data-name="{{ fornecedor.nome }}">
-                                            {{ fornecedor.nome }}
-                                        </a>
-                                    </li>
+                                    <option value="{{ fornecedor.id }}" {% if produto.fornecedor and produto.fornecedor.id == fornecedor.id %}selected{% endif %}>
+                                        {{ fornecedor.nome }}
+                                    </option>
                                     {% endfor %}
-                                    <li>
-                                        <hr class="dropdown-divider">
-                                    </li>
-                                    <li>
-                                        <a class="dropdown-item text-primary" href="{% url 'cadastra_fornecedor' %}">
-                                            <i class="bi bi-plus-circle"></i> Cadastrar novo fornecedor
-                                        </a>
-                                    </li>
-                                </ul>
+                                </select>
+                                <a href="{% url 'cadastra_fornecedor' %}" class="btn btn-primary"
+                                    style="white-space: nowrap;">
+                                    <i class="bi bi-plus-circle"></i> Novo fornecedor
+                                </a>
                             </div>
                         </div>
+
                         <!-- Categoria -->
                         <div class="mb-3">
                             <label for="categoria" class="form-label fw-bold">Categoria</label>
-                            <div class="dropdown" data-dropdown="container">
-                                <button class="btn btn-outline-secondary dropdown-toggle w-50" type="button"
-                                    data-dropdown="btn" data-target="menu2" data-bs-toggle="dropdown">
-                                    Selecione a categoria
-                                </button>
+                            <div class="d-flex gap-2 align-items-center">
+                                <select class="form-select w-50" name="categoria" id="categoria" required >
+                                    <option value="">--------</option>
+                                    <!-- <option value="" disabled selected>Selecione a categoria</option> -->
+                                    {% for categoria in categorias %}
+                                    <option value="{{ categoria.id }}" {% if produto.categoria.id == categoria.id %}
+                                        selected {% endif %}>
+                                        {{ categoria.nome }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+
+                                <!-- Botão para gerenciar categorias -->
                                 <button class="btn btn-primary" type="button" data-bs-toggle="modal"
                                     data-bs-target="#categoryModal">
                                     <i class="bi bi-gear"></i> Gerenciar
                                 </button>
-                                <input type="hidden" name="categoria" data-dropdown="input"
-                                    value="{{ produto.categoria|default_if_none:'' }}">
-                                <ul class="dropdown-menu w-50 overflow-auto" style="max-height: 300px;" id="menu2">
-                                    {% for categoria in categorias %}
-                                    <li>
-                                        <a class="dropdown-item" href="#" data-id="{{ categoria.id }}"
-                                            data-name="{{ categoria.nome }}">
-                                            {{ categoria.nome }}
-                                        </a>
-                                    </li>
-                                    {% endfor %}
-                                    <li>
-                                        <hr class="dropdown-divider">
-                                    </li>
-                                </ul>
                             </div>
                         </div>
                         <!-- Detalhes -->

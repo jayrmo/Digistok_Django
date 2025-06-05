@@ -5,48 +5,48 @@ document.addEventListener('DOMContentLoaded', function () {
     // O <input type="hidden"> precisa de: data-dropdown="input"
     // <a> do menu precisa de data-id e data-name
 
-    const dropdowns = document.querySelectorAll('[data-dropdown="container"]');
+    // const dropdowns = document.querySelectorAll('[data-dropdown="container"]');
 
-    dropdowns.forEach(container => {
-        const dropdownBtn = container.querySelector('[data-dropdown="btn"]');
-        const hiddenInput = container.querySelector('[data-dropdown="input"]');
-        const menuId = dropdownBtn.getAttribute('data-target');
-        const menu = document.getElementById(menuId);
-        const btn = container.querySelector('[data-dropdown="btn"]');
-        const entrada = container.querySelector('[data-dropdown="input"]');
-        const items = container.querySelectorAll('.dropdown-item');
+    // dropdowns.forEach(container => {
+    //     const dropdownBtn = container.querySelector('[data-dropdown="btn"]');
+    //     const hiddenInput = container.querySelector('[data-dropdown="input"]');
+    //     const menuId = dropdownBtn.getAttribute('data-target');
+    //     const menu = document.getElementById(menuId);
+    //     const btn = container.querySelector('[data-dropdown="btn"]');
+    //     const entrada = container.querySelector('[data-dropdown="input"]');
+    //     const items = container.querySelectorAll('.dropdown-item');
 
-        if (!dropdownBtn || !hiddenInput || !menu) return;
+    //     if (!dropdownBtn || !hiddenInput || !menu) return;
 
-        menu.querySelectorAll('a[data-id]').forEach(item => {
-            item.addEventListener('click', e => {
-                e.preventDefault();
-                const name = item.getAttribute('data-name');
-                const id = item.getAttribute('data-id');
+    //     menu.querySelectorAll('a[data-id]').forEach(item => {
+    //         item.addEventListener('click', e => {
+    //             e.preventDefault();
+    //             const name = item.getAttribute('data-name');
+    //             const id = item.getAttribute('data-id');
 
-                dropdownBtn.textContent = name;
-                hiddenInput.value = id;
-            });
-        });
+    //             dropdownBtn.textContent = name;
+    //             hiddenInput.value = id;
+    //         });
+    //     });
 
-        // Atualiza o texto do botão conforme o valor do input escondido
-        if (entrada.value) {
-            let selected = Array.from(items).find(item => item.getAttribute('data-name') === entrada.value);
-            if (selected) {
-                btn.textContent = entrada.value;
-            }
-        }
+    //     // Atualiza o texto do botão conforme o valor do input escondido
+    //     if (entrada.value) {
+    //         let selected = Array.from(items).find(item => item.getAttribute('data-name') === entrada.value);
+    //         if (selected) {
+    //             btn.textContent = entrada.value;
+    //         }
+    //     }
 
-        // Atualiza o input e botão ao clicar em item
-        items.forEach(item => {
-            item.addEventListener('click', e => {
-                e.preventDefault();
-                const name = item.getAttribute('data-name');
-                entrada.value = name;
-                btn.textContent = name;
-            });
-        });
-    });
+    //     // Atualiza o input e botão ao clicar em item
+    //     items.forEach(item => {
+    //         item.addEventListener('click', e => {
+    //             e.preventDefault();
+    //             const name = item.getAttribute('data-name');
+    //             entrada.value = name;
+    //             btn.textContent = name;
+    //         });
+    //     });
+    // });
 
 
 
@@ -77,16 +77,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
     limparBtn.addEventListener('click', function () {
         form.reset();
-
-        // Resetar botões dos dropdowns
-        form.querySelectorAll('[data-dropdown="btn"]').forEach(btn => {
-            btn.textContent = "Selecione";
-        });
-
-        // Resetar os inputs hidden
-        form.querySelectorAll('[data-dropdown="input"]').forEach(input => {
-            input.value = "";
-        });
 
         // Esconder o preview da imagem
         if (preview) {

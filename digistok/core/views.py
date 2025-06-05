@@ -40,7 +40,7 @@ class CadastraProduto(View):
         produtos_lista = Produto.objects.all().order_by('id')
         if busca:
             produtos_lista = Produto.objects.filter(
-                Q(codigo__icontains=busca) | Q(descricao__icontains=busca) | Q(categoria__iexact=busca)
+                Q(codigo__icontains=busca) | Q(descricao__icontains=busca) | Q(categoria__nome__iexact=busca)
                     ).order_by('id')
         else:
             produtos_lista = Produto.objects.all().order_by('id')    
@@ -99,18 +99,82 @@ class EditaProduto(View):
     def get(self, request, pk):
         produto = get_object_or_404(Produto, pk=pk)
         produtos = Produto.objects.all()
+        fornecedores = Fornecedor.objects.all().order_by('id')
+        categorias = Categoria.objects.all().order_by('id')
         return render(request, self.template_name, {
-            'produto': produto,
-            'produtos' : produtos
+            'fornecedores': fornecedores,
+            'categorias': categorias,
+            'produtos' : produtos,
+            'produto' : produto
         })
-
     def post(self, request, pk):
         produto = get_object_or_404(Produto, pk=pk)
+
+        # Atualização de textos e numeros
+        produto.codigo = request.POST.get('codigo')
         produto.descricao = request.POST.get('descricao', '').strip()
-        produto.unidade = request.POST.get('unidade', '').strip()
-        produto.categoria = request.POST.get('categoria', '').strip()
-        produto.fornecedor = request.POST.get('fornecedor', '').strip()
+        produto.unidade_medida = request.POST.get('unidade', '').strip()
+        produto.detalhes = request.POST.get('detalhes', '').strip()
+        try:
+            produto.codigo = int(request.POST.get('codigo'))
+        except (ValueError, TypeError):
+            messages.error(request, 'Código deve ser um número válido.')
+            fornecedores = Fornecedor.objects.all().order_by('id')
+            categorias = Categoria.objects.all().order_by('id')
+            produtos = Produto.objects.all()
+            return render(request, self.template_name, {
+                'fornecedores': fornecedores,
+                'categorias': categorias,
+                'produtos': produtos,
+                'produto': produto
+            })
+
+        categoria_id = request.POST.get('categoria')
+        fornecedor_id = request.POST.get('fornecedor')
+
+        if categoria_id:
+            try:
+                produto.categoria = Categoria.objects.get(id=categoria_id)
+            except Categoria.DoesNotExist:
+                messages.error(request, 'Categoria inválida. Selecione uma categoria existente.')
+                fornecedores = Fornecedor.objects.all().order_by('id')
+                categorias = Categoria.objects.all().order_by('id')
+                produtos = Produto.objects.all()
+                return render(request, self.template_name, {
+                    'fornecedores': fornecedores,
+                    'categorias': categorias,
+                    'produtos': produtos,
+                    'produto': produto
+                })
+        else:
+            produto.categoria = None
+
+        if fornecedor_id:
+            try:
+                produto.fornecedor = Fornecedor.objects.get(id=fornecedor_id)
+            except Fornecedor.DoesNotExist:
+                messages.error(request, 'Fornecedor inválido. Selecione um fornecedor existente.')
+                fornecedores = Fornecedor.objects.all().order_by('id')
+                categorias = Categoria.objects.all().order_by('id')
+                produtos = Produto.objects.all()
+                return render(request, self.template_name, {
+                    'fornecedores': fornecedores,
+                    'categorias': categorias,
+                    'produtos': produtos,
+                    'produto': produto
+                })
+        else:
+            produto.fornecedor = None
+
+        # Checa campo foto
+        if 'foto' in request.FILES:
+            produto.foto = request.FILES['foto']
+        elif request.POST.get('foto_clear') == 'on':
+            produto.foto = None
+
+        # Sava a edição
         produto.save()
+
         messages.success(request, "Produto atualizado com sucesso!")
         return redirect('cadastra_produto')
 
@@ -127,7 +191,28 @@ class ApagaProduto(DeleteView):
         self.object.delete()
         messages.success(request, f'Produto "{descricao}" apagado com sucesso.')
         return HttpResponseRedirect(self.success_url)
+    
+    # Apaga a imagem antiga do disco quando o produto for apagado 
+    @receiver(post_delete, sender=Produto)
+    def apagar_foto(sender, instance, **kwargs):
+        if instance.foto and os.path.isfile(instance.foto.path):
+            os.remove(instance.foto.path)
 
+    # Apaga a imagem antiga do disco quando a  noticia for atualizada
+    @receiver(pre_save, sender=Produto)
+    def apagar_antiga(sender, instance, **kwargs):
+        if not instance.pk:
+            return 
+
+        try:
+            foto_antiga = Produto.objects.get(pk=instance.pk).foto
+        except Produto.DoesNotExist:
+            return
+
+        nova_foto= instance.foto
+        if foto_antiga and foto_antiga != nova_foto:
+            if os.path.isfile(foto_antiga.path):
+                os.remove(foto_antiga.path)
 
 # Apaga múltiplos produtos
 @method_decorator(csrf_exempt, name='dispatch')
