@@ -5,8 +5,10 @@ from .views import *
 
 urlpatterns = [
     # Páginas de Home
-    path('homepage/', HomePage.as_view(), name='homepage'),
+    # path('homepage/', HomePage.as_view(), name='homepage'),
+    path('homepage/', DashboardMovimentacoesView.as_view(), name='homepage'),
     path('relatorio/movimentacoes/', RelatorioMovimentacoesView.as_view(), name='relatorio_movimentacoes'),
+    # path('dashboard/', DashboardMovimentacoesView.as_view(), name='dashboard_movimentacoes'),
     
     # # CRUD PRODUTO
     path('cadastra_produto', CadastraProduto.as_view(), name='cadastra_produto'),

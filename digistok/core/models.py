@@ -36,8 +36,8 @@ class Produto(models.Model):
     descricao = models.CharField(max_length=200)
     foto = models.ImageField(upload_to='produtos/', blank=True, null=True)
     unidade_medida = models.CharField(max_length=200)
-    fornecedor = models.ForeignKey(Fornecedor, on_delete=models.CASCADE)
-    categoria = models.ForeignKey(Categoria, on_delete=models.CASCADE)
+    fornecedor = models.ForeignKey(Fornecedor, on_delete=models.PROTECT)
+    categoria = models.ForeignKey(Categoria, on_delete=models.PROTECT)
     detalhes = models.TextField(blank=True, null=True)
 
     def __str__(self):

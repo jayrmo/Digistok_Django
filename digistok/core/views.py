@@ -1,13 +1,15 @@
-from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models.signals import post_delete, pre_save
 from django.views.decorators.cache import never_cache
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from django.core.exceptions import ValidationError
+from django.views.generic import TemplateView
 from django.http import HttpResponseRedirect
 from django.views.generic import DeleteView
 from django.core.paginator import Paginator
+from django.db.models import Sum, Count
 from django.dispatch import receiver
 from django.urls import reverse_lazy
 from django.contrib import messages
@@ -15,6 +17,7 @@ from django.db.models import Q
 from django.views import View
 from .models import *
 import os
+import json
 
 # Create your views here.
 
@@ -350,6 +353,12 @@ class ApagaFornecedoresSelecionados(LoginRequiredMixin, View):
     def post(self, request):
         ids = request.POST.getlist('fornecedores_selecionados')
         if ids:
+            # 1. Verificar se algum dos fornecedores selecionados tem produtos vinculados
+            if Produto.objects.filter(fornecedor_id__in=ids).exists():
+                messages.error(request, "Falha ao apagar. Um ou mais fornecedores estão vinculados a produtos. Por favor, desvincule os produtos antes de tentar novamente.")
+                return redirect('cadastra_fornecedor')
+
+
             fornecedores = Fornecedor.objects.filter(id__in=ids)
             quantidade = fornecedores.count()
             nome_primeiro = fornecedores[0].nome if quantidade == 1 else None
@@ -472,6 +481,10 @@ class ApagaCategoriasSelecionadas(LoginRequiredMixin, View):
     def post(self, request):
         ids = request.POST.getlist('categorias_selecionadas')
         if ids:
+            
+            if Produto.objects.filter(categoria_id__in=ids).exists():
+                messages.error(request, "Falha ao apagar. Uma ou mais categorias estão vinculadas a produtos. Por favor, desvincule os produtos antes de tentar novamente.")
+                return redirect('cadastra_categoria')
             categorias = Categoria.objects.filter(id__in=ids)
             quantidade = categorias.count()
             nome_primeira_categoria = categorias[0].nome if quantidade == 1 else None
@@ -825,6 +838,72 @@ class RelatorioMovimentacoesView(LoginRequiredMixin, View):
 
 
 
+# Dashboard
+class DashboardMovimentacoesView(TemplateView):
+    template_name = 'digistok/homepage.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # Total Products Registered
+        context['total_produtos'] = Produto.objects.count()
+
+        total_entradas = MovimentacaoEstoque.objects.filter(
+            tipo='ENTRADA'
+        ).aggregate(Sum('quantidade'))['quantidade__sum'] or 0
+
+        
+        total_saidas = MovimentacaoEstoque.objects.filter(
+            tipo='SAIDA'
+        ).aggregate(Sum('quantidade'))['quantidade__sum'] or 0
+
+        
+        total_transferencias_destino = MovimentacaoEstoque.objects.filter(
+            tipo='TRANSFERENCIA',
+            estoque_destino__isnull=False
+        ).aggregate(Sum('quantidade'))['quantidade__sum'] or 0
+
+        
+        total_transferencias_origem = MovimentacaoEstoque.objects.filter(
+            tipo='TRANSFERENCIA',
+            estoque_origem__isnull=False 
+        ).aggregate(Sum('quantidade'))['quantidade__sum'] or 0
+        
+       
+        context['quantidade_total_em_estoque'] = (total_entradas + total_transferencias_destino) - \
+                                                 (total_saidas + total_transferencias_origem)
+
+        context['total_locais_ativos'] = Local.objects.filter(status='Ativo').count()
+
+
+        # --- 2. Data for Charts ---
+        # Products by Category (for Pie Chart)
+        # Groups products by their category name and counts them
+        produtos_por_categoria_qs = Produto.objects.values('categoria__nome').annotate(count=Count('id')).order_by('categoria__nome')
+        
+        # Converts the QuerySet into a Python dictionary. Handles products without a category.
+        produtos_por_categoria_dict = {
+            item['categoria__nome'] if item['categoria__nome'] else 'Sem Categoria': item['count'] 
+            for item in produtos_por_categoria_qs
+        }
+        # Serializes the dictionary to a JSON string for JavaScript consumption
+        context['produtos_por_categoria_json'] = json.dumps(produtos_por_categoria_dict)
+        
+        # Quantity by Stock Location (for Bar Chart)
+        # This calculates the total quantity of items that have *entered* each stock location
+        # (either directly as 'ENTRADA' or as a 'TRANSFERENCIA' to that location).
+        quantidade_por_estoque_qs = MovimentacaoEstoque.objects.filter(
+            Q(tipo='ENTRADA') | Q(tipo='TRANSFERENCIA', estoque_destino__isnull=False)
+        ).values('estoque_destino__descricao').annotate(total_quantidade=Sum('quantidade')).order_by('estoque_destino__descricao')
+
+        # Converts the QuerySet to a Python dictionary. Handles cases where a destination might be null.
+        quantidade_por_estoque_dict = {
+            item['estoque_destino__descricao'] if item['estoque_destino__descricao'] else 'Local Não Informado': item['total_quantidade']
+            for item in quantidade_por_estoque_qs
+        }
+        # Serializes the dictionary to a JSON string for JavaScript consumption
+        context['quantidade_por_estoque_json'] = json.dumps(quantidade_por_estoque_dict)
+
+        return context
 
 # # INICIO CRUD MOVIMENTAÇÂO -------------------------
 # class MovimentacaoEstoqueView(LoginRequiredMixin, View):

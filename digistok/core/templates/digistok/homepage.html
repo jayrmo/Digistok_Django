@@ -1,2 +1,110 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
 {% load static %}
+
+{% block body %}
+
+<div class="py-3 py-md-7">
+    <div class="row mb-4">
+        <div class="col-md-4 mb-3">
+            <div class="card shadow border-left-primary h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                Total de Produtos Cadastrados
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ total_produtos|default:0 }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="bi bi-box fs-2 text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 mb-3">
+            <div class="card shadow border-left-success h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                Quantidade Total em Estoque
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ quantidade_total_em_estoque|default:0 }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="bi bi-boxes fs-2 text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 mb-3">
+            <div class="card shadow border-left-info h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                Locais de Estoque Ativos
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ total_locais_ativos|default:0 }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="bi bi-geo-alt fs-2 text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-lg-6 mb-3">
+            <div class="card shadow h-100">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0"><i class="bi bi-tags-fill"></i> Distribuição de Produtos por Categoria</h3>
+                </div>
+                <div class="card-body">
+                    <div style="position: relative; height:40vh; width:100%">
+                        <canvas id="produtosPorCategoriaChart"></canvas>
+                    </div>
+                    {% if not produtos_por_categoria_json or produtos_por_categoria_json == '{}' %}
+                        <p class="text-muted text-center mt-3" id="noDataCategoria">Nenhum dado de categoria disponível para o gráfico.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6 mb-3">
+            <div class="card shadow h-100">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0"><i class="bi bi-house-fill"></i> Quantidade de Produtos por Local de Estoque</h3>
+                </div>
+                <div class="card-body">
+                    <div style="position: relative; height:40vh; width:100%">
+                        <canvas id="quantidadePorEstoqueChart"></canvas>
+                    </div>
+                    {% if not quantidade_por_estoque_json or quantidade_por_estoque_json == '{}' %}
+                        <p class="text-muted text-center mt-3" id="noDataEstoque">Nenhum dado de estoque disponível para o gráfico.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Define as variáveis JavaScript globais com os dados JSON
+    // Elas serão acessíveis pelo script_dashboard.js
+    const produtosPorCategoriaJson = '{{ produtos_por_categoria_json|escapejs }}';
+    const quantidadePorEstoqueJson = '{{ quantidade_por_estoque_json|escapejs }}';
+</script>
+{# Carrega o arquivo JavaScript externo #}
+<script src="{% static 'js/script_dashboard.js' %}"></script>
+{% endblock %}
