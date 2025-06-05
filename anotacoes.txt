@@ -3,7 +3,8 @@ Banco: digistok
 use: digistok
 senha: digistok
 
-
+usuario e senha: digistok
+Endereço de email: digistok@django.com
 
 
 -------------------------------------------------

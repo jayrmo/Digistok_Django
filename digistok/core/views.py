@@ -1,4 +1,4 @@
-from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render, redirect, get_object_or_404
 from django.db.models.signals import post_delete, pre_save
 from django.views.decorators.cache import never_cache
@@ -8,8 +8,6 @@ from django.core.exceptions import ValidationError
 from django.http import HttpResponseRedirect
 from django.views.generic import DeleteView
 from django.core.paginator import Paginator
-from django.views.generic import ListView
-from django.http import HttpResponse
 from django.dispatch import receiver
 from django.urls import reverse_lazy
 from django.contrib import messages
@@ -19,8 +17,9 @@ from .models import *
 import os
 
 # Create your views here.
+
 @method_decorator(never_cache, name='dispatch')
-class HomePage(View):
+class HomePage(LoginRequiredMixin, View):
     def get(self, request): 
         # noticias = Noticia.objects.all().order_by('-data_publicacao')     
         context = {
@@ -28,12 +27,15 @@ class HomePage(View):
             # 'noticias': noticias,
         }
         return render(request, 'digistok/homepage.html', context) 
+
+
+
     
     
   
 # INICIO CRUD PRODUTO ----------------------------  
 # Cadastra e Lista Produto
-class CadastraProduto(View):
+class CadastraProduto(LoginRequiredMixin, View):
     def get(self, request):
         busca = request.GET.get('busca')
         fornecedores = Fornecedor.objects.all().order_by('id')
@@ -58,6 +60,8 @@ class CadastraProduto(View):
             'busca': busca
         }
         return render(request, 'digistok/cadastra_produto.html', context)
+    
+    # @method_decorator(login_required(login_url=reverse_lazy('login')), name='post')
     def post(self, request):
         codigo = request.POST.get('codigo', '').strip()
         foto = request.FILES.get('foto')
@@ -94,7 +98,7 @@ class CadastraProduto(View):
         
     
 # Edita Produto
-class EditaProduto(View):
+class EditaProduto(LoginRequiredMixin, View):
     template_name = 'digistok/cadastra_produto.html'
 
     def get(self, request, pk):
@@ -181,7 +185,7 @@ class EditaProduto(View):
 
 
 # Apaga Produto individual
-class ApagaProduto(DeleteView):
+class ApagaProduto(LoginRequiredMixin, DeleteView):
     model = Produto
     template_name = 'digistok/cadastra_produto.html'
     success_url = reverse_lazy('cadastra_produto')
@@ -217,7 +221,7 @@ class ApagaProduto(DeleteView):
 
 # Apaga múltiplos produtos
 @method_decorator(csrf_exempt, name='dispatch')
-class ApagaProdutosSelecionados(View):
+class ApagaProdutosSelecionados(LoginRequiredMixin, View):
     def post(self, request):
         ids = request.POST.getlist('produtos_selecionados')
         if ids:
@@ -239,7 +243,7 @@ class ApagaProdutosSelecionados(View):
     
 # INICIO CRUD FORNECEDOR------------------------------
 # Cadastra e Lista Fornecedor
-class CadastraFornecedor(View):
+class CadastraFornecedor(LoginRequiredMixin, View):
     def get(self, request):
         busca = request.GET.get('busca')
         status_filtro = request.GET.get('status_filtro', '')
@@ -301,7 +305,7 @@ class CadastraFornecedor(View):
 
 
 # Edita Fornecedor
-class EditaFornecedor(View):
+class EditaFornecedor(LoginRequiredMixin, View):
     template_name = 'digistok/cadastra_fornecedor.html'
 
     def get(self, request, pk):
@@ -327,7 +331,7 @@ class EditaFornecedor(View):
 
 
 # Apaga Fornecedor individual
-class ApagaFornecedor(DeleteView):
+class ApagaFornecedor(LoginRequiredMixin, DeleteView):
     model = Fornecedor
     template_name = 'digistok/cadastra_fornecedor.html'
     success_url = reverse_lazy('cadastra_fornecedor')
@@ -342,7 +346,7 @@ class ApagaFornecedor(DeleteView):
 
 # Apaga múltiplos fornecedores
 @method_decorator(csrf_exempt, name='dispatch')
-class ApagaFornecedoresSelecionados(View):
+class ApagaFornecedoresSelecionados(LoginRequiredMixin, View):
     def post(self, request):
         ids = request.POST.getlist('fornecedores_selecionados')
         if ids:
@@ -368,7 +372,7 @@ class ApagaFornecedoresSelecionados(View):
 
 # INICIO CRUD CATEGORIA--------------------------------------
 # Cadastra e Lista Categoria 
-class CadastraCategoria(View):
+class CadastraCategoria(LoginRequiredMixin, View):
     def get(self, request):
         categorias_lista = Categoria.objects.all().order_by('id')
         busca = request.GET.get('busca')
@@ -434,7 +438,7 @@ class CadastraCategoria(View):
                      
 
 # Edita Categoria
-class EditaCategoria(View):
+class EditaCategoria(LoginRequiredMixin, View):
     model = Categoria
     template_name = 'digistok/cadastra_categoria.html'
 
@@ -451,7 +455,7 @@ class EditaCategoria(View):
         return redirect('cadastra_categoria')
 
 #Apagar Categoria
-class ApagaCategoria(DeleteView):
+class ApagaCategoria(LoginRequiredMixin, DeleteView):
     model = Categoria
     template_name = 'digistok/cadastra_categoria.html'
     success_url = reverse_lazy('cadastra_categoria')
@@ -464,7 +468,7 @@ class ApagaCategoria(DeleteView):
         return HttpResponseRedirect(self.success_url)
     
 @method_decorator(csrf_exempt, name='dispatch')
-class ApagaCategoriasSelecionadas(View):
+class ApagaCategoriasSelecionadas(LoginRequiredMixin, View):
     def post(self, request):
         ids = request.POST.getlist('categorias_selecionadas')
         if ids:

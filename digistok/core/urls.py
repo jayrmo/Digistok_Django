@@ -1,11 +1,14 @@
 from django.contrib.auth import views as auth_views
 from django.contrib.auth.views import LoginView
-from django.urls import path
+from django.urls import path, include
 from .views import * 
 
 urlpatterns = [
     # Páginas de Home
-    path('', HomePage.as_view(), name='homepage'),
+    path('homepage/', HomePage.as_view(), name='homepage'),
+    # path('login/', Login.as_view(),name='login'),
+    # path('login/', auth_views.LogoutView.as_view(), name='logout'),
+    # path('logout/', auth_views.LogoutView.as_view(next_page='/'), name='logout'),
     
     # # CRUD PRODUTO
     path('cadastra_produto', CadastraProduto.as_view(), name='cadastra_produto'),
