@@ -499,6 +499,7 @@ class MovimentacaoEstoqueView(LoginRequiredMixin, View):
             movimentacao = get_object_or_404(MovimentacaoEstoque, pk=pk)
 
         produtos = Produto.objects.all().order_by('descricao')
+        locais = Local.objects.filter(status='Ativo').order_by('descricao')
         
         # Lista de Movimentações
         movimentacoes_list = MovimentacaoEstoque.objects.all().order_by('-data') 
@@ -509,18 +510,19 @@ class MovimentacaoEstoqueView(LoginRequiredMixin, View):
             movimentacoes_list = movimentacoes_list.filter(
                 Q(tipo__icontains=busca) |
                 Q(produto__descricao__icontains=busca) |
-                Q(estoque_origem__icontains=busca) |
-                Q(estoque_destino__icontains=busca) |
+                Q(estoque_origem__descricao__icontains=busca) |
+                Q(estoque_destino__descricao__icontains=busca) |
                 Q(usuario_responsavel__username__icontains=busca)
             )
 
-        paginator = Paginator(movimentacoes_list, 10)
+        paginator = Paginator(movimentacoes_list, 5)
         page_number = request.GET.get('page')
         movimentacoes = paginator.get_page(page_number)
 
         context = {
             'movimentacao': movimentacao,
             'produtos': produtos,
+            'locais': locais,
             'movimentacoes': movimentacoes,
             'busca': busca,
         }
@@ -532,29 +534,49 @@ class MovimentacaoEstoqueView(LoginRequiredMixin, View):
         else:
             movimentacao = MovimentacaoEstoque()
 
-        
         movimentacao.tipo = request.POST.get('tipo')
         produto_id = request.POST.get('produto')
-        movimentacao.estoque_origem = request.POST.get('estoque_origem', '').strip()
-        movimentacao.estoque_destino = request.POST.get('estoque_destino', '').strip()
+        quantidade = request.POST.get('quantidade', '').strip()
+        estoque_origem_id = request.POST.get('estoque_origem')
+        estoque_destino_id = request.POST.get('estoque_destino')
         movimentacao.detalhes = request.POST.get('detalhes', '').strip()
         movimentacao.usuario_responsavel = request.user
 
+        # Validação de quantidade
+        try:
+            movimentacao.quantidade = int(quantidade) if quantidade else 0
+            if movimentacao.quantidade <= 0:
+                messages.error(request, 'A quantidade deve ser maior que zero.')
+                return self._render_with_context(request, movimentacao)
+        except ValueError:
+            messages.error(request, 'Quantidade deve ser um número inteiro válido.')
+            return self._render_with_context(request, movimentacao)
+
+        # Validação de produto
         try:
             movimentacao.produto = Produto.objects.get(id=produto_id)
         except Produto.DoesNotExist:
             messages.error(request, 'Produto inválido. Selecione um produto existente.')
-            
-            produtos = Produto.objects.all().order_by('descricao')
-            movimentacoes_list = MovimentacaoEstoque.objects.all().order_by('-data')
-            paginator = Paginator(movimentacoes_list, 10)
-            page_number = request.GET.get('page')
-            movimentacoes = paginator.get_page(page_number)
-            return render(request, self.template_name, {
-                'movimentacao': movimentacao,
-                'produtos': produtos,
-                'movimentacoes': movimentacoes,
-            })
+            return self._render_with_context(request, movimentacao)
+
+        # Validação de locais
+        if estoque_origem_id:
+            try:
+                movimentacao.estoque_origem = Local.objects.get(id=estoque_origem_id)
+            except Local.DoesNotExist:
+                messages.error(request, 'Local de origem inválido.')
+                return self._render_with_context(request, movimentacao)
+        else:
+            movimentacao.estoque_origem = None
+
+        if estoque_destino_id:
+            try:
+                movimentacao.estoque_destino = Local.objects.get(id=estoque_destino_id)
+            except Local.DoesNotExist:
+                messages.error(request, 'Local de destino inválido.')
+                return self._render_with_context(request, movimentacao)
+        else:
+            movimentacao.estoque_destino = None
 
         try:
             movimentacao.full_clean() 
@@ -565,26 +587,342 @@ class MovimentacaoEstoqueView(LoginRequiredMixin, View):
             for field, errors in e.message_dict.items():
                 for error in errors:
                     messages.error(request, f"{field.replace('_', ' ').capitalize()}: {error}")
-            
-            produtos = Produto.objects.all().order_by('descricao')
-            movimentacoes_list = MovimentacaoEstoque.objects.all().order_by('-data')
-            paginator = Paginator(movimentacoes_list, 10)
-            page_number = request.GET.get('page')
-            movimentacoes = paginator.get_page(page_number)
-            return render(request, self.template_name, {
-                'movimentacao': movimentacao,
-                'produtos': produtos,
-                'movimentacoes': movimentacoes,
-            })
+            return self._render_with_context(request, movimentacao)
 
-# Don't forget your delete view:
+    def _render_with_context(self, request, movimentacao):
+        produtos = Produto.objects.all().order_by('descricao')
+        locais = Local.objects.filter(status='Ativo').order_by('descricao')
+        movimentacoes_list = MovimentacaoEstoque.objects.all().order_by('-data')
+        paginator = Paginator(movimentacoes_list, 5)
+        page_number = request.GET.get('page')
+        movimentacoes = paginator.get_page(page_number)
+        return render(request, self.template_name, {
+            'movimentacao': movimentacao,
+            'produtos': produtos,
+            'locais': locais,
+            'movimentacoes': movimentacoes,
+        })
+
+# Apaga Movimentação individual
+class ApagaMovimentacao(LoginRequiredMixin, DeleteView):
+    model = MovimentacaoEstoque
+    success_url = reverse_lazy('movimentacao_estoque')
+    
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        tipo_movimentacao = self.object.get_tipo_display()
+        produto = self.object.produto.descricao
+        self.object.delete()
+        messages.success(request, f'Movimentação "{tipo_movimentacao} - {produto}" apagada com sucesso.')
+        return HttpResponseRedirect(self.success_url)
+
+# Apaga múltiplas movimentações
+@method_decorator(csrf_exempt, name='dispatch')
 class ApagaMovimentacoesSelecionadasView(LoginRequiredMixin, View):
     def post(self, request):
         movimentacao_ids = request.POST.getlist('movimentacoes_selecionadas')
         if movimentacao_ids:
-            # Add a check to prevent deleting if associated with an important record (e.g., protect)
-            MovimentacaoEstoque.objects.filter(id__in=movimentacao_ids).delete()
-            messages.success(request, "Movimentações selecionadas excluídas com sucesso!")
+            movimentacoes = MovimentacaoEstoque.objects.filter(id__in=movimentacao_ids)
+            quantidade = movimentacoes.count()
+            movimentacoes.delete()
+            if quantidade == 1:
+                messages.success(request, 'Movimentação apagada com sucesso.')
+            else:
+                messages.success(request, f'{quantidade} movimentações apagadas com sucesso.')
         else:
             messages.warning(request, "Nenhuma movimentação foi selecionada para exclusão.")
         return redirect('movimentacao_estoque')
+
+# Final CRUD MOVIMENTAÇÂO -------------------------
+
+# INICIO CRUD LOCAL --------------------------------
+class CadastraLocal(LoginRequiredMixin, View):
+    template_name = 'digistok/cadastra_local.html'
+
+    def get(self, request):
+        busca = request.GET.get('busca', '')
+        
+        if busca:
+            locais = Local.objects.filter(
+                Q(descricao__icontains=busca) | Q(endereco__icontains=busca)
+            ).order_by('descricao')
+        else:
+            locais = Local.objects.all().order_by('descricao')
+        
+        # Paginação
+        paginator = Paginator(locais, 5)
+        page_number = request.GET.get('page')
+        locais = paginator.get_page(page_number)
+        
+        return render(request, self.template_name, {
+            'locais': locais,
+            'busca': busca,
+        })
+
+    def post(self, request):
+        descricao = request.POST.get('localDescricao', '').strip()
+        endereco = request.POST.get('localEndereco', '').strip()
+        status = 'Ativo' if request.POST.get('localStatus') else 'Inativo'
+
+        if not descricao:
+            messages.error(request, 'A descrição do local é obrigatória.')
+            return redirect('cadastra_local')
+
+        if Local.objects.filter(descricao=descricao).exists():
+            messages.error(request, f'O local "{descricao}" já está cadastrado.')
+            return redirect('cadastra_local')
+
+        Local.objects.create(
+            descricao=descricao,
+            endereco=endereco,
+            status=status
+        )
+        messages.success(request, f'Local "{descricao}" cadastrado com sucesso!')
+        return redirect('cadastra_local')
+
+
+class EditaLocal(LoginRequiredMixin, View):
+    template_name = 'digistok/cadastra_local.html'
+
+    def get(self, request, pk):
+        local = get_object_or_404(Local, pk=pk)
+        status_ativo = local.status == 'Ativo'
+        
+        locais = Local.objects.all().order_by('descricao')
+        paginator = Paginator(locais, 5)
+        page_number = request.GET.get('page')
+        locais = paginator.get_page(page_number)
+        
+        return render(request, self.template_name, {
+            'local': local,
+            'locais': locais,
+            'status_ativo': status_ativo,
+            
+        })
+
+    def post(self, request, pk):
+        local = get_object_or_404(Local, pk=pk)
+        
+        descricao = request.POST.get('localDescricao', '').strip()
+        endereco = request.POST.get('localEndereco', '').strip()
+        status = 'Ativo' if request.POST.get('localStatus') else 'Inativo'
+
+        if not descricao:
+            messages.error(request, 'A descrição do local é obrigatória.')
+            return redirect('editar_local', pk=pk)
+
+        # Verifica se já existe outro local com a mesma descrição
+        if Local.objects.filter(descricao=descricao).exclude(pk=pk).exists():
+            messages.error(request, f'Já existe outro local com a descrição "{descricao}".')
+            return redirect('editar_local', pk=pk)
+
+        local.descricao = descricao
+        local.endereco = endereco
+        local.status = status
+        local.save()
+        
+        messages.success(request, f'Local "{descricao}" atualizado com sucesso!')
+        return redirect('cadastra_local')
+
+
+class ApagaLocal(LoginRequiredMixin, DeleteView):
+    model = Local
+    success_url = reverse_lazy('cadastra_local')
+
+    def delete(self, request, *args, **kwargs):
+        local = self.get_object()
+        nome = local.descricao
+        messages.success(request, f'Local "{nome}" excluído com sucesso!')
+        return super().delete(request, *args, **kwargs)
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class ApagaLocaisSelecionados(LoginRequiredMixin, View):
+    def post(self, request):
+        ids = request.POST.getlist('locais_selecionados')
+        if ids:
+            locais = Local.objects.filter(id__in=ids)
+            quantidade = locais.count()
+            nome_primeiro = locais[0].descricao if quantidade == 1 else None
+            locais.delete()
+            if quantidade == 1:
+                messages.success(request, f'Local "{nome_primeiro}" apagado com sucesso.')
+            else:
+                messages.success(request, f'"{quantidade}" locais apagados com sucesso.')
+        else:
+            messages.warning(request, "Nenhum local selecionado para exclusão.")
+        return redirect('cadastra_local')
+
+# Final CRUD LOCAL------------------------------
+
+
+
+
+
+
+
+# INICIO RELATORIO --------------------------------
+class RelatorioMovimentacoesView(LoginRequiredMixin, View):
+    template_name = 'digistok/relatorio_movimentacoes.html'
+
+    def get(self, request):
+        # Query base otimizada com select_related para evitar múltiplas queries
+        movimentacoes_list = MovimentacaoEstoque.objects.select_related(
+            'produto__categoria', 
+            'estoque_origem', 
+            'estoque_destino', 
+            'usuario_responsavel'
+        ).all().order_by('-data')
+
+        # Captura dos filtros do formulário (via GET)
+        produto_id = request.GET.get('produto')
+        tipo_movimentacao = request.GET.get('tipo')
+        local_id = request.GET.get('local')
+        data_inicio = request.GET.get('data_inicio')
+        data_fim = request.GET.get('data_fim')
+
+        # Aplicação dos filtros na query
+        if produto_id:
+            movimentacoes_list = movimentacoes_list.filter(produto_id=produto_id)
+        
+        if tipo_movimentacao:
+            movimentacoes_list = movimentacoes_list.filter(tipo=tipo_movimentacao)
+            
+        if local_id:
+            movimentacoes_list = movimentacoes_list.filter(Q(estoque_origem_id=local_id) | Q(estoque_destino_id=local_id))
+
+        if data_inicio:
+            movimentacoes_list = movimentacoes_list.filter(data__gte=data_inicio)
+
+        if data_fim:
+            # Adiciona 1 dia à data final para incluir o dia inteiro na busca
+            from datetime import datetime, timedelta
+            data_fim_obj = datetime.strptime(data_fim, '%Y-%m-%d') + timedelta(days=1)
+            movimentacoes_list = movimentacoes_list.filter(data__lt=data_fim_obj)
+
+        # Paginação dos resultados
+        paginator = Paginator(movimentacoes_list, 15)
+        page_number = request.GET.get('page')
+        movimentacoes = paginator.get_page(page_number)
+
+        context = {
+            'title': 'Relatórios',
+            'movimentacoes': movimentacoes,
+            # Dados para popular os dropdowns de filtro
+            'produtos': Produto.objects.all().order_by('descricao'),
+            'locais': Local.objects.filter(status='Ativo').order_by('descricao'),
+            'tipos_movimentacao': TIPO_CHOICES,
+            # Devolve os valores dos filtros para o template para manter o formulário preenchido
+            'filtros': request.GET
+        }
+        return render(request, self.template_name, context)
+
+
+
+
+
+
+
+
+
+
+# # INICIO CRUD MOVIMENTAÇÂO -------------------------
+# class MovimentacaoEstoqueView(LoginRequiredMixin, View):
+#     template_name = 'digistok/movimentacao_estoque.html'
+
+#     def get(self, request, pk=None):
+#         movimentacao = None
+#         if pk:
+#             movimentacao = get_object_or_404(MovimentacaoEstoque, pk=pk)
+
+#         produtos = Produto.objects.all().order_by('descricao')
+        
+#         # Lista de Movimentações
+#         movimentacoes_list = MovimentacaoEstoque.objects.all().order_by('-data') 
+        
+#         # Busca de Movimentações
+#         busca = request.GET.get('busca')
+#         if busca:
+#             movimentacoes_list = movimentacoes_list.filter(
+#                 Q(tipo__icontains=busca) |
+#                 Q(produto__descricao__icontains=busca) |
+#                 Q(estoque_origem__icontains=busca) |
+#                 Q(estoque_destino__icontains=busca) |
+#                 Q(usuario_responsavel__username__icontains=busca)
+#             )
+
+#         paginator = Paginator(movimentacoes_list, 10)
+#         page_number = request.GET.get('page')
+#         movimentacoes = paginator.get_page(page_number)
+
+#         context = {
+#             'movimentacao': movimentacao,
+#             'produtos': produtos,
+#             'movimentacoes': movimentacoes,
+#             'busca': busca,
+#         }
+#         return render(request, self.template_name, context)
+
+#     def post(self, request, pk=None):
+#         if pk:
+#             movimentacao = get_object_or_404(MovimentacaoEstoque, pk=pk)
+#         else:
+#             movimentacao = MovimentacaoEstoque()
+
+        
+#         movimentacao.tipo = request.POST.get('tipo')
+#         produto_id = request.POST.get('produto')
+#         movimentacao.estoque_origem = request.POST.get('estoque_origem', '').strip()
+#         movimentacao.estoque_destino = request.POST.get('estoque_destino', '').strip()
+#         movimentacao.detalhes = request.POST.get('detalhes', '').strip()
+#         movimentacao.usuario_responsavel = request.user
+
+#         try:
+#             movimentacao.produto = Produto.objects.get(id=produto_id)
+#         except Produto.DoesNotExist:
+#             messages.error(request, 'Produto inválido. Selecione um produto existente.')
+            
+#             produtos = Produto.objects.all().order_by('descricao')
+#             movimentacoes_list = MovimentacaoEstoque.objects.all().order_by('-data')
+#             paginator = Paginator(movimentacoes_list, 10)
+#             page_number = request.GET.get('page')
+#             movimentacoes = paginator.get_page(page_number)
+#             return render(request, self.template_name, {
+#                 'movimentacao': movimentacao,
+#                 'produtos': produtos,
+#                 'movimentacoes': movimentacoes,
+#             })
+
+#         try:
+#             movimentacao.full_clean() 
+#             movimentacao.save()
+#             messages.success(request, "Movimentação salva com sucesso!")
+#             return redirect('movimentacao_estoque')
+#         except ValidationError as e:
+#             for field, errors in e.message_dict.items():
+#                 for error in errors:
+#                     messages.error(request, f"{field.replace('_', ' ').capitalize()}: {error}")
+            
+#             produtos = Produto.objects.all().order_by('descricao')
+#             movimentacoes_list = MovimentacaoEstoque.objects.all().order_by('-data')
+#             paginator = Paginator(movimentacoes_list, 10)
+#             page_number = request.GET.get('page')
+#             movimentacoes = paginator.get_page(page_number)
+#             return render(request, self.template_name, {
+#                 'movimentacao': movimentacao,
+#                 'produtos': produtos,
+#                 'movimentacoes': movimentacoes,
+#             })
+
+# # Don't forget your delete view:
+# class ApagaMovimentacoesSelecionadasView(LoginRequiredMixin, View):
+#     def post(self, request):
+#         movimentacao_ids = request.POST.getlist('movimentacoes_selecionadas')
+#         if movimentacao_ids:
+#             # Add a check to prevent deleting if associated with an important record (e.g., protect)
+#             MovimentacaoEstoque.objects.filter(id__in=movimentacao_ids).delete()
+#             messages.success(request, "Movimentações selecionadas excluídas com sucesso!")
+#         else:
+#             messages.warning(request, "Nenhuma movimentação foi selecionada para exclusão.")
+#         return redirect('movimentacao_estoque')
+

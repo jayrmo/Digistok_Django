@@ -6,9 +6,7 @@ from .views import *
 urlpatterns = [
     # Páginas de Home
     path('homepage/', HomePage.as_view(), name='homepage'),
-    # path('login/', Login.as_view(),name='login'),
-    # path('login/', auth_views.LogoutView.as_view(), name='logout'),
-    # path('logout/', auth_views.LogoutView.as_view(next_page='/'), name='logout'),
+    path('relatorio/movimentacoes/', RelatorioMovimentacoesView.as_view(), name='relatorio_movimentacoes'),
     
     # # CRUD PRODUTO
     path('cadastra_produto', CadastraProduto.as_view(), name='cadastra_produto'),
@@ -31,14 +29,14 @@ urlpatterns = [
     # CRUD MOVIMENTAÇÂO
     path('movimentacao-estoque/', MovimentacaoEstoqueView.as_view(), name='movimentacao_estoque'),
     path('movimentacao-estoque/editar/<int:pk>/', MovimentacaoEstoqueView.as_view(), name='editar_movimentacao'),
-    path('movimentacao-estoque/excluir-selecionados/', ApagaMovimentacoesSelecionadasView.as_view(), name='apaga_movimentacoes_selecionadas'),
-    # .
-    # path('noticia_form', Noticia_form.as_view(), name='noticia_form'),
-    # path('nova-noticia/', NoticiaCreateView.as_view(), name='nova-noticia'),
+    path('movimentacao-estoque/delete/<int:pk>/', ApagaMovimentacao.as_view(), name='apaga_movimentacao'),
+    path('movimentacao-estoque/apagar_selecionados/', ApagaMovimentacoesSelecionadasView.as_view(), name='apaga_movimentacoes_selecionadas'),
 
-    
-    # # Login/Logout
-    # path('login/', LoginView.as_view(template_name='login.html'), name='login'),
-    # path('logout/', auth_views.LogoutView.as_view(next_page='/'), name='logout'),
+    # CRUD LOCAL
+    path('cadastra_local', CadastraLocal.as_view(), name='cadastra_local'),
+    path('local/<int:pk>/editar/', EditaLocal.as_view(), name='editar_local'),
+    path('local/delete/<int:pk>/', ApagaLocal.as_view(), name='apaga_local'),
+    path('local/apagar_selecionados/', ApagaLocaisSelecionados.as_view(), name='apaga_locais_selecionados'),
+
 
 ]

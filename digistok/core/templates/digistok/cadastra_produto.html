@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% load static %}
-
+{% load digistok_tags %}
 {% block body %}
 
 
@@ -61,12 +61,18 @@
                             <label for="unidade" class="form-label fw-bold">Unidade de Medida</label>
                             <select class="form-select w-50" name="unidade" id="unidade" required>
                                 <option value="">--------</option>
-                                <option value="Unidade" {% if produto.unidade_medida == "Unidade" %}selected{% endif %}>Unidade</option>
-                                <option value="Pacote" {% if produto.unidade_medida == "Pacote" %}selected{% endif %}>Pacote</option>
-                                <option value="Caixa" {% if produto.unidade_medida == "Caixa" %}selected{% endif %}>Caixa </option>
-                                <option value="Saco" {% if produto.unidade_medida == "Saco" %}selected{% endif %}>Saco</option>
-                                <option value="Par" {% if produto.unidade_medida == "Par" %}selected{% endif %}>Par</option>
-                                <option value="Dúzia" {% if produto.unidade_medida == "Dúzia" %}selected{% endif %}>Dúzia</option>
+                                <option value="Unidade" {% if produto.unidade_medida == "Unidade" %}selected{% endif %}>
+                                    Unidade</option>
+                                <option value="Pacote" {% if produto.unidade_medida == "Pacote" %}selected{% endif %}>
+                                    Pacote</option>
+                                <option value="Caixa" {% if produto.unidade_medida == "Caixa" %}selected{% endif %}>Caixa
+                                </option>
+                                <option value="Saco" {% if produto.unidade_medida == "Saco" %}selected{% endif %}>Saco
+                                </option>
+                                <option value="Par" {% if produto.unidade_medida == "Par" %}selected{% endif %}>Par
+                                </option>
+                                <option value="Dúzia" {% if produto.unidade_medida == "Dúzia" %}selected{% endif %}>Dúzia
+                                </option>
                             </select>
                         </div>
 
@@ -93,7 +99,7 @@
                         <div class="mb-3">
                             <label for="categoria" class="form-label fw-bold">Categoria</label>
                             <div class="d-flex gap-2 align-items-center">
-                                <select class="form-select w-50" name="categoria" id="categoria" required >
+                                <select class="form-select w-50" name="categoria" id="categoria" required>
                                     <option value="">--------</option>
                                     <!-- <option value="" disabled selected>Selecione a categoria</option> -->
                                     {% for categoria in categorias %}
@@ -220,7 +226,8 @@
                     <div class="me-4" style="width: 250px;">Descrição</div>
                     <div class="me-4" style="width: 250px;">Categoria</div>
                     <div class="me-4" style="width: 250px;">Foto</div>
-                    <div class="ms-auto" style="width: 100px;">Ações</div>
+                    <div class="me-4" style="width: 250px;">QR-Code</div>
+                    <div class="ms-auto" style="width: 70px;">Ações</div>
                 </div>
 
                 {% for produto in produtos %}
@@ -244,12 +251,26 @@
                         <span>Sem imagem</span>
                         {% endif %}
                     </div>
+                    <div class="me-4" style="width: 250px;">
+                        <button type="button" class="btn btn-info btn-sm qr-code-btn" data-bs-toggle="modal"
+                                data-bs-target="#qrModal{{ produto.id }}">
+                                <i class="bi bi-qr-code"></i>
+                        </button>
+                    </div>
 
-                    <!-- Botão Editar alinhado à direita -->
+                    <!-- Botão Editar alinhado à direita
                     <div class="ms-auto">
                         <a href="{% url 'editar_produto' produto.pk %}" class="btn btn-warning btn-sm">
                             <i class="bi bi-pencil-square"></i> Editar
                         </a>
+                    </div> -->
+                    <!-- Botão Editar alinhado à direita -->
+                    <div class="ms-auto">
+                        <div class="btn-group-actions">
+                            <a href="{% url 'editar_produto' produto.pk %}" class="btn btn-warning btn-sm">
+                                <i class="bi bi-pencil-square"></i> Editar
+                            </a>
+                        </div>
                     </div>
                 </div>
 
@@ -290,7 +311,37 @@
     </form>
     <!-- FIM DO FORM DE EXCLUSÃO MÚLTIPLA -->
 </div>
+<!-- Modais de QR Code para cada produto -->
+{% for produto in produtos %}
+<div class="modal fade" id="qrModal{{ produto.id }}" tabindex="-1" aria-labelledby="qrModalLabel{{ produto.id }}"
+    aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered qr-modal">
+        <div class="modal-content">
+            <div class="modal-header bg-info text-white">
+                <h5 class="modal-title" id="qrModalLabel{{ produto.id }}">
+                    <i class="bi bi-qr-code"></i> QR Code - {{ produto.descricao }}
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                    aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center">
+                <div class="mb-3">
+                    <img src="{% qr_code_modal produto %}" alt="QR Code" class="img-fluid">
+                </div>
+                <div class="small text-muted">
+                    <strong>Código:</strong> {{ produto.codigo }}<br>
+                    <strong>Descrição:</strong> {{ produto.descricao }}
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="bi bi-x-lg"></i> Fechar
+                </button>
+            </div>
+        </div>
+    </div>
 </div>
+{% endfor %}
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         const selectAllCheckbox = document.getElementById('selectAll');

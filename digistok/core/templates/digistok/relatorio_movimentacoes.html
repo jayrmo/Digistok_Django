@@ -1,0 +1,140 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block body %}
+
+<div class="py-3 py-md-7">
+    <!-- Formulário de Filtros -->
+    <div class="card shadow mb-4">
+        <div class="card-header bg-primary text-white">
+            <h3 class="mb-0"><i class="bi bi-funnel-fill"></i> Filtros do Relatório</h3>
+        </div>
+        <div class="card-body">
+            <form method="GET" action="">
+                <div class="row">
+                    <div class="col-lg-3 col-md-6 mb-3">
+                        <label for="produto" class="form-label fw-bold">Produto</label>
+                        <select name="produto" id="produto" class="form-select">
+                            <option value="">Todos</option>
+                            {% for p in produtos %}
+                            <option value="{{ p.id }}" {% if filtros.produto == p.id|stringformat:"s" %}selected{% endif %}>
+                                {{ p.descricao }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-lg-3 col-md-6 mb-3">
+                        <label for="tipo" class="form-label fw-bold">Tipo de Movimentação</label>
+                        <select name="tipo" id="tipo" class="form-select">
+                            <option value="">Todos</option>
+                            {% for valor, texto in tipos_movimentacao %}
+                            <option value="{{ valor }}" {% if filtros.tipo == valor %}selected{% endif %}>
+                                {{ texto }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-lg-3 col-md-6 mb-3">
+                        <label for="local" class="form-label fw-bold">Local (Origem/Destino)</label>
+                        <select name="local" id="local" class="form-select">
+                            <option value="">Todos</option>
+                            {% for l in locais %}
+                            <option value="{{ l.id }}" {% if filtros.local == l.id|stringformat:"s" %}selected{% endif %}>
+                                {{ l.descricao }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-3 col-md-6 mb-3">
+                        <label for="data_inicio" class="form-label fw-bold">Data de Início</label>
+                        <input type="date" name="data_inicio" id="data_inicio" class="form-control" value="{{ filtros.data_inicio }}">
+                    </div>
+                    <div class="col-lg-3 col-md-6 mb-3">
+                        <label for="data_fim" class="form-label fw-bold">Data Final</label>
+                        <input type="date" name="data_fim" id="data_fim" class="form-control" value="{{ filtros.data_fim }}">
+                    </div>
+                </div>
+                <div class="d-flex justify-content-end gap-2">
+                    <a href="{% url 'relatorio_movimentacoes' %}" class="btn btn-secondary">
+                        <i class="bi bi-x-circle"></i> Limpar Filtros
+                    </a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-search"></i> Filtrar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Tabela de Resultados -->
+    <div class="card shadow">
+        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+            <h3 class="mb-0"><i class="bi bi-file-earmark-text"></i> Resultados</h3>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                    <thead class="bg-light">
+                        <tr>
+                            <th>Data</th>
+                            <th>Tipo</th>
+                            <th>Produto</th>
+                            <th class="text-center">Qtd.</th>
+                            <th>Origem</th>
+                            <th>Destino</th>
+                            <th>Responsável</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for mov in movimentacoes %}
+                        <tr>
+                            <td>{{ mov.data|date:"d/m/Y H:i" }}</td>
+                            <td>
+                                <span class="badge 
+                                    {% if mov.tipo == 'ENTRADA' %}bg-success
+                                    {% elif mov.tipo == 'SAIDA' %}bg-danger
+                                    {% elif mov.tipo == 'TRANSFERENCIA' %}bg-warning text-dark
+                                    {% else %}bg-info text-dark
+                                    {% endif %}">
+                                    {{ mov.get_tipo_display }}
+                                </span>
+                            </td>
+                            <td>{{ mov.produto.descricao }}</td>
+                            <td class="text-center">{{ mov.quantidade }}</td>
+                            <td>{{ mov.estoque_origem.descricao|default:"-" }}</td>
+                            <td>{{ mov.estoque_destino.descricao|default:"-" }}</td>
+                            <td>{{ mov.usuario_responsavel.get_full_name|default:mov.usuario_responsavel.username }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="7" class="text-center text-muted py-4">Nenhuma movimentação encontrada com os filtros aplicados.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Paginação -->
+            {% if movimentacoes.paginator.num_pages > 1 %}
+            <nav class="mt-4">
+                <ul class="pagination justify-content-center">
+                    {% if movimentacoes.has_previous %}
+                        <li class="page-item"><a class="page-link" href="?{{ filtros.urlencode }}&page=1">Primeira</a></li>
+                        <li class="page-item"><a class="page-link" href="?{{ filtros.urlencode }}&page={{ movimentacoes.previous_page_number }}">Anterior</a></li>
+                    {% endif %}
+                    
+                    <li class="page-item disabled"><a class="page-link" href="#">Página {{ movimentacoes.number }} de {{ movimentacoes.paginator.num_pages }}</a></li>
+                    
+                    {% if movimentacoes.has_next %}
+                        <li class="page-item"><a class="page-link" href="?{{ filtros.urlencode }}&page={{ movimentacoes.next_page_number }}">Próxima</a></li>
+                        <li class="page-item"><a class="page-link" href="?{{ filtros.urlencode }}&page={{ movimentacoes.paginator.num_pages }}">Última</a></li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

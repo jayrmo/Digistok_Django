@@ -46,11 +46,21 @@ class Produto(models.Model):
     
 class MovimentacaoEstoque(models.Model):
     tipo = models.CharField(max_length=20,choices=TIPO_CHOICES)
-    estoque_origem = models.CharField(max_length=200,blank=True,null=True)
-    estoque_destino = models.CharField( max_length=200,blank=True,null=True)
+    produto = models.ForeignKey('Produto',on_delete=models.PROTECT)
+    quantidade = models.IntegerField(default=0)
+    estoque_origem = models.ForeignKey('Local', on_delete=models.PROTECT, related_name='movimentacoes_origem', blank=True, null=True)
+    estoque_destino = models.ForeignKey('Local', on_delete=models.PROTECT, related_name='movimentacoes_destino', blank=True, null=True)
     data = models.DateTimeField(auto_now_add=True)
     usuario_responsavel = models.ForeignKey(User,on_delete=models.PROTECT)
-    produto = models.ForeignKey( 'Produto',on_delete=models.PROTECT)
+    detalhes = models.TextField(blank=True, null=True)
+    
+    def __str__(self):
+        return f'{self.tipo} - {self.produto} - {self.data.strftime("%d/%m/%Y %H:%M")}'
 
-    def _str_(self):
-        return f'{self.tipo} - {self.produto} - {self.data.strftime("%d/%m/%Y %H:%M")}'    
+class Local(models.Model):
+    descricao = models.CharField(max_length=200)
+    endereco = models.CharField(max_length=300)    
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='Ativo')
+
+    def __str__(self):
+        return self.descricao

@@ -3,9 +3,9 @@
 
 {% block body %}
 
-<div class="py-7">
+<div class="py-3 py-md-7">
     <div class="row justify-content-center">
-        <div class="">
+        <div class="col-12">
             <div class="card shadow">
                 <div class="card-header bg-primary text-white">
                     <h3 class="mb-0"><i class="bi bi-arrow-left-right"></i> Registro de Movimentação de Estoque</h3>
@@ -14,19 +14,18 @@
                     <form id="movementForm" method="POST" action="">
                         {% csrf_token %}
                         <div class="row">
-                            <div class="col-md-6 mb-3">
+                            <div class="col-lg-6 col-12 mb-3">
                                 <label for="tipoMovimentacao" class="form-label fw-bold">Tipo de Movimentação</label>
-                                <select class="form-select w-75" name="tipo" id="tipoMovimentacao" required>
+                                <select class="form-select" name="tipo" id="tipoMovimentacao" required>
                                     <option value="">--------</option>
                                     <option value="ENTRADA" {% if movimentacao.tipo == "ENTRADA" %}selected{% endif %}>Entrada</option>
                                     <option value="SAIDA" {% if movimentacao.tipo == "SAIDA" %}selected{% endif %}>Saída</option>
                                     <option value="TRANSFERENCIA" {% if movimentacao.tipo == "TRANSFERENCIA" %}selected{% endif %}>Transferência</option>
-                                    <option value="AJUSTE" {% if movimentacao.tipo == "AJUSTE" %}selected{% endif %}>Ajuste</option>
                                 </select>
                             </div>
-                            <div class="col-md-6 mb-3">
+                            <div class="col-lg-6 col-12 mb-3">
                                 <label for="produto" class="form-label fw-bold">Produto</label>
-                                <select class="form-select w-75" name="produto" id="produto" required>
+                                <select class="form-select" name="produto" id="produto" required>
                                     <option value="">--------</option>
                                     {% for prod in produtos %}
                                     <option value="{{ prod.id }}" {% if movimentacao.produto and movimentacao.produto.id == prod.id %}selected{% endif %}>
@@ -38,17 +37,33 @@
                         </div>
 
                         <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label for="estoqueOrigem" class="form-label fw-bold">Estoque de Origem</label>
-                                <input type="text" class="form-control" id="estoqueOrigem" name="estoque_origem"
-                                    value="{{ movimentacao.estoque_origem|default_if_none:'' }}"
-                                    placeholder="Ex: Almoxarifado Principal">
+                            <div class="col-lg-4 col-md-6 col-12 mb-3">
+                                <label for="quantidade" class="form-label fw-bold">Quantidade</label>
+                                <input type="number" class="form-control" id="quantidade" name="quantidade" 
+                                    value="{{ movimentacao.quantidade|default_if_none:'' }}" 
+                                    step="1" min="1" required placeholder="0">
                             </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="estoqueDestino" class="form-label fw-bold">Estoque de Destino</label>
-                                <input type="text" class="form-control" id="estoqueDestino" name="estoque_destino"
-                                    value="{{ movimentacao.estoque_destino|default_if_none:'' }}"
-                                    placeholder="Ex: Setor de Vendas">
+                            <div class="col-lg-4 col-md-6 col-12 mb-3">
+                                <label for="estoqueOrigem" class="form-label fw-bold">Local de Origem</label>
+                                <select class="form-select" name="estoque_origem" id="estoqueOrigem">
+                                    <option value="">--------</option>
+                                    {% for local in locais %}
+                                    <option value="{{ local.id }}" {% if movimentacao.estoque_origem and movimentacao.estoque_origem.id == local.id %}selected{% endif %}>
+                                        {{ local.descricao }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-lg-4 col-12 mb-3">
+                                <label for="estoqueDestino" class="form-label fw-bold">Local de Destino</label>
+                                <select class="form-select" name="estoque_destino" id="estoqueDestino">
+                                    <option value="">--------</option>
+                                    {% for local in locais %}
+                                    <option value="{{ local.id }}" {% if movimentacao.estoque_destino and movimentacao.estoque_destino.id == local.id %}selected{% endif %}>
+                                        {{ local.descricao }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
                             </div>
                         </div>
 
@@ -90,15 +105,14 @@
 
 
 
-<!-- ## Lista de Movimentações -->
-
+<!-- Lista de Movimentações -->
 <div class="card shadow mt-4">
-    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-        <h3 class="mb-0 d-flex align-items-center">
+    <div class="card-header bg-primary text-white d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center">
+        <h3 class="mb-2 mb-md-0 d-flex align-items-center">
             <i class="bi bi-list-ul me-2"></i> Histórico de Movimentações
         </h3>
-        <div class="ms-auto">
-            <form method="GET" action="" class="d-flex align-items-center gap-2" style="max-width: 350px;">
+        <div class="w-100 w-md-auto mt-2 mt-md-0">
+            <form method="GET" action="" class="d-flex align-items-center gap-2">
                 <div class="input-group input-group-sm">
                     <input type="text" name="busca" class="form-control" placeholder="Buscar..."
                         value="{{ busca|default_if_none:'' }}">
@@ -120,39 +134,45 @@
                     <label for="selectAll" class="form-label mb-0">Selecionar todos</label>
                 </div>
 
-                <div class="d-flex fw-bold px-2 py-2 border-bottom bg-light small">
-                    <div style="width: 30px;"></div> {# Checkbox column spacer #}
+                <!-- Desktop headers -->
+                <div class="d-none d-lg-flex fw-bold px-2 py-2 border-bottom bg-light small">
+                    <div style="width: 30px;"></div>
                     <div style="width: 100px;">Tipo</div>
                     <div style="width: 200px;">Produto</div>
-                    <div style="width: 150px;">Origem</div>
-                    <div style="width: 150px;">Destino</div>
-                    <div style="width: 150px;">Data</div>
-                    <div style="width: 150px;">Responsável</div>
+                    <div style="width: 80px;">Qtd</div>
+                    <div style="width: 120px;">Origem</div>
+                    <div style="width: 120px;">Destino</div>
+                    <div style="width: 120px;">Data</div>
+                    <div style="width: 120px;">Responsável</div>
                     <div class="ms-auto" style="width: 80px;">Ações</div>
                 </div>
 
                 {% for movimentacao in movimentacoes %}
-                <div class="list-group-item d-flex align-items-center mb-1 px-2">
+                <!-- Desktop view -->
+                <div class="list-group-item d-none d-lg-flex align-items-center mb-1 px-2">
                     <div class="d-flex align-items-center" style="width: 30px;">
                         <input type="checkbox" name="movimentacoes_selecionadas" value="{{ movimentacao.id }}"
                             class="form-check-input me-1">
                     </div>
                     <div style="width: 100px;">
-                        <span>{{ movimentacao.get_tipo_display }}</span> {# Uses get_FOO_display for choice human-readable value #}
+                        <span>{{ movimentacao.get_tipo_display }}</span>
                     </div>
                     <div style="width: 200px;">
                         <span>{{ movimentacao.produto.descricao }}</span>
                     </div>
-                    <div style="width: 150px;">
-                        <span>{{ movimentacao.estoque_origem|default_if_none:'-' }}</span>
+                    <div style="width: 80px;">
+                        <span>{{ movimentacao.quantidade }}</span>
                     </div>
-                    <div style="width: 150px;">
-                        <span>{{ movimentacao.estoque_destino|default_if_none:'-' }}</span>
+                    <div style="width: 120px;">
+                        <span>{{ movimentacao.estoque_origem.descricao|default_if_none:'-' }}</span>
                     </div>
-                    <div style="width: 150px;">
+                    <div style="width: 120px;">
+                        <span>{{ movimentacao.estoque_destino.descricao|default_if_none:'-' }}</span>
+                    </div>
+                    <div style="width: 120px;">
                         <span>{{ movimentacao.data|date:"d/m/Y H:i" }}</span>
                     </div>
-                    <div style="width: 150px;">
+                    <div style="width: 120px;">
                         <span>{{ movimentacao.usuario_responsavel.get_full_name|default:movimentacao.usuario_responsavel.username }}</span>
                     </div>
 
@@ -160,6 +180,29 @@
                         <a href="{% url 'editar_movimentacao' movimentacao.pk %}" class="btn btn-warning btn-sm">
                             <i class="bi bi-pencil-square"></i>
                         </a>
+                    </div>
+                </div>
+                
+                <!-- Mobile view -->
+                <div class="list-group-item d-lg-none mb-2">
+                    <div class="d-flex align-items-start justify-content-between mb-2">
+                        <div class="form-check">
+                            <input type="checkbox" name="movimentacoes_selecionadas" value="{{ movimentacao.id }}"
+                                class="form-check-input">
+                            <label class="form-check-label fw-bold">
+                                {{ movimentacao.get_tipo_display }} - {{ movimentacao.produto.descricao }}
+                            </label>
+                        </div>
+                        <a href="{% url 'editar_movimentacao' movimentacao.pk %}" class="btn btn-warning btn-sm">
+                            <i class="bi bi-pencil-square"></i>
+                        </a>
+                    </div>
+                    <div class="small text-muted">
+                        <div><strong>Quantidade:</strong> {{ movimentacao.quantidade }}</div>
+                        <div><strong>Origem:</strong> {{ movimentacao.estoque_origem.descricao|default_if_none:'-' }}</div>
+                        <div><strong>Destino:</strong> {{ movimentacao.estoque_destino.descricao|default_if_none:'-' }}</div>
+                        <div><strong>Data:</strong> {{ movimentacao.data|date:"d/m/Y H:i" }}</div>
+                        <div><strong>Responsável:</strong> {{ movimentacao.usuario_responsavel.get_full_name|default:movimentacao.usuario_responsavel.username }}</div>
                     </div>
                 </div>
                 {% endfor %}
@@ -200,15 +243,14 @@
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         const selectAllCheckbox = document.getElementById('selectAll');
-        const checkboxes = document.querySelectorAll('input[name="movimentacoes_selecionadas"]'); // Updated name
+        const checkboxes = document.querySelectorAll('input[name="movimentacoes_selecionadas"]');
 
-        if (selectAllCheckbox && checkboxes) { // Ensure elements exist
+        if (selectAllCheckbox && checkboxes) {
             selectAllCheckbox.addEventListener('change', function () {
                 checkboxes.forEach(checkbox => checkbox.checked = this.checked);
             });
         }
 
-        // Optional: Clear form functionality for the movement form
         const clearButton = document.getElementById('btn-limpar-movimentacao');
         if (clearButton) {
             clearButton.addEventListener('click', function() {
