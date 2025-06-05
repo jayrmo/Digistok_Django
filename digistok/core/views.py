@@ -13,6 +13,8 @@ from django.db.models import Sum, Count
 from django.dispatch import receiver
 from django.urls import reverse_lazy
 from django.contrib import messages
+from django.utils import timezone
+from datetime import timedelta
 from django.db.models import Q
 from django.views import View
 from .models import *
@@ -782,6 +784,7 @@ class RelatorioMovimentacoesView(LoginRequiredMixin, View):
         # Query base otimizada com select_related para evitar múltiplas queries
         movimentacoes_list = MovimentacaoEstoque.objects.select_related(
             'produto__categoria', 
+            'produto__fornecedor',
             'estoque_origem', 
             'estoque_destino', 
             'usuario_responsavel'
@@ -791,12 +794,16 @@ class RelatorioMovimentacoesView(LoginRequiredMixin, View):
         produto_id = request.GET.get('produto')
         tipo_movimentacao = request.GET.get('tipo')
         local_id = request.GET.get('local')
+        fornecedor_id = request.GET.get('fornecedor')
         data_inicio = request.GET.get('data_inicio')
         data_fim = request.GET.get('data_fim')
 
         # Aplicação dos filtros na query
         if produto_id:
             movimentacoes_list = movimentacoes_list.filter(produto_id=produto_id)
+            
+        if fornecedor_id:
+            movimentacoes_list = movimentacoes_list.filter(produto__fornecedor_id=fornecedor_id) 
         
         if tipo_movimentacao:
             movimentacoes_list = movimentacoes_list.filter(tipo=tipo_movimentacao)
@@ -823,6 +830,7 @@ class RelatorioMovimentacoesView(LoginRequiredMixin, View):
             'movimentacoes': movimentacoes,
             # Dados para popular os dropdowns de filtro
             'produtos': Produto.objects.all().order_by('descricao'),
+            'fornecedores': Fornecedor.objects.all().order_by('nome'),
             'locais': Local.objects.filter(status='Ativo').order_by('descricao'),
             'tipos_movimentacao': TIPO_CHOICES,
             # Devolve os valores dos filtros para o template para manter o formulário preenchido
@@ -839,72 +847,148 @@ class RelatorioMovimentacoesView(LoginRequiredMixin, View):
 
 
 # Dashboard
-class DashboardMovimentacoesView(TemplateView):
-    template_name = 'digistok/homepage.html'
+# class DashboardMovimentacoesView(TemplateView):
+#     template_name = 'digistok/homepage.html'
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        # Total Products Registered
-        context['total_produtos'] = Produto.objects.count()
+#     def get_context_data(self, **kwargs):
+#         context = super().get_context_data(**kwargs)
+#         # Total Products Registered
+#         context['total_produtos'] = Produto.objects.count()
 
-        total_entradas = MovimentacaoEstoque.objects.filter(
-            tipo='ENTRADA'
-        ).aggregate(Sum('quantidade'))['quantidade__sum'] or 0
-
-        
-        total_saidas = MovimentacaoEstoque.objects.filter(
-            tipo='SAIDA'
-        ).aggregate(Sum('quantidade'))['quantidade__sum'] or 0
+#         total_entradas = MovimentacaoEstoque.objects.filter(
+#             tipo='ENTRADA'
+#         ).aggregate(Sum('quantidade'))['quantidade__sum'] or 0
 
         
-        total_transferencias_destino = MovimentacaoEstoque.objects.filter(
-            tipo='TRANSFERENCIA',
-            estoque_destino__isnull=False
-        ).aggregate(Sum('quantidade'))['quantidade__sum'] or 0
+#         total_saidas = MovimentacaoEstoque.objects.filter(
+#             tipo='SAIDA'
+#         ).aggregate(Sum('quantidade'))['quantidade__sum'] or 0
 
         
-        total_transferencias_origem = MovimentacaoEstoque.objects.filter(
-            tipo='TRANSFERENCIA',
-            estoque_origem__isnull=False 
-        ).aggregate(Sum('quantidade'))['quantidade__sum'] or 0
+#         total_transferencias_destino = MovimentacaoEstoque.objects.filter(
+#             tipo='TRANSFERENCIA',
+#             estoque_destino__isnull=False
+#         ).aggregate(Sum('quantidade'))['quantidade__sum'] or 0
+
+        
+#         total_transferencias_origem = MovimentacaoEstoque.objects.filter(
+#             tipo='TRANSFERENCIA',
+#             estoque_origem__isnull=False 
+#         ).aggregate(Sum('quantidade'))['quantidade__sum'] or 0
         
        
-        context['quantidade_total_em_estoque'] = (total_entradas + total_transferencias_destino) - \
-                                                 (total_saidas + total_transferencias_origem)
+#         context['quantidade_total_em_estoque'] = (total_entradas + total_transferencias_destino) - \
+#                                                  (total_saidas + total_transferencias_origem)
 
-        context['total_locais_ativos'] = Local.objects.filter(status='Ativo').count()
+#         context['total_locais_ativos'] = Local.objects.filter(status='Ativo').count()
 
 
-        # --- 2. Data for Charts ---
-        # Products by Category (for Pie Chart)
-        # Groups products by their category name and counts them
-        produtos_por_categoria_qs = Produto.objects.values('categoria__nome').annotate(count=Count('id')).order_by('categoria__nome')
+#         # --- 2. Data for Charts ---
+#         # Products by Category (for Pie Chart)
+#         # Groups products by their category name and counts them
+#         produtos_por_categoria_qs = Produto.objects.values('categoria__nome').annotate(count=Count('id')).order_by('categoria__nome')
         
-        # Converts the QuerySet into a Python dictionary. Handles products without a category.
-        produtos_por_categoria_dict = {
-            item['categoria__nome'] if item['categoria__nome'] else 'Sem Categoria': item['count'] 
-            for item in produtos_por_categoria_qs
-        }
-        # Serializes the dictionary to a JSON string for JavaScript consumption
-        context['produtos_por_categoria_json'] = json.dumps(produtos_por_categoria_dict)
+#         # Converts the QuerySet into a Python dictionary. Handles products without a category.
+#         produtos_por_categoria_dict = {
+#             item['categoria__nome'] if item['categoria__nome'] else 'Sem Categoria': item['count'] 
+#             for item in produtos_por_categoria_qs
+#         }
+#         # Serializes the dictionary to a JSON string for JavaScript consumption
+#         context['produtos_por_categoria_json'] = json.dumps(produtos_por_categoria_dict)
         
-        # Quantity by Stock Location (for Bar Chart)
-        # This calculates the total quantity of items that have *entered* each stock location
-        # (either directly as 'ENTRADA' or as a 'TRANSFERENCIA' to that location).
-        quantidade_por_estoque_qs = MovimentacaoEstoque.objects.filter(
-            Q(tipo='ENTRADA') | Q(tipo='TRANSFERENCIA', estoque_destino__isnull=False)
-        ).values('estoque_destino__descricao').annotate(total_quantidade=Sum('quantidade')).order_by('estoque_destino__descricao')
+#         # Quantity by Stock Location (for Bar Chart)
+#         # This calculates the total quantity of items that have *entered* each stock location
+#         # (either directly as 'ENTRADA' or as a 'TRANSFERENCIA' to that location).
+#         quantidade_por_estoque_qs = MovimentacaoEstoque.objects.filter(
+#             Q(tipo='ENTRADA') | Q(tipo='TRANSFERENCIA', estoque_destino__isnull=False)
+#         ).values('estoque_destino__descricao').annotate(total_quantidade=Sum('quantidade')).order_by('estoque_destino__descricao')
 
-        # Converts the QuerySet to a Python dictionary. Handles cases where a destination might be null.
-        quantidade_por_estoque_dict = {
-            item['estoque_destino__descricao'] if item['estoque_destino__descricao'] else 'Local Não Informado': item['total_quantidade']
-            for item in quantidade_por_estoque_qs
+#         # Converts the QuerySet to a Python dictionary. Handles cases where a destination might be null.
+#         quantidade_por_estoque_dict = {
+#             item['estoque_destino__descricao'] if item['estoque_destino__descricao'] else 'Local Não Informado': item['total_quantidade']
+#             for item in quantidade_por_estoque_qs
+#         }
+#         # Serializes the dictionary to a JSON string for JavaScript consumption
+#         context['quantidade_por_estoque_json'] = json.dumps(quantidade_por_estoque_dict)
+
+#         return context
+class DashboardMovimentacoesView(LoginRequiredMixin, View):
+    template_name = 'digistok/homepage.html'
+    
+    def get(self, request, *args, **kwargs):
+        # --- 1. DADOS PARA OS KPIs ---
+        kpi = {
+            'total_produtos': Produto.objects.count(),
+            'fornecedores_ativos': Fornecedor.objects.filter(status='Ativo').count(),
+            'total_categorias': Categoria.objects.count(),
+            'movimentacoes_30_dias': MovimentacaoEstoque.objects.filter(
+                data__gte=timezone.now() - timedelta(days=30)
+            ).count(),
         }
-        # Serializes the dictionary to a JSON string for JavaScript consumption
-        context['quantidade_por_estoque_json'] = json.dumps(quantidade_por_estoque_dict)
 
-        return context
+        # --- 2. DADOS PARA OS GRÁFICOS ---
+        
+        # Gráfico 1: Movimentações por Tempo (Últimos 15 dias)
+        end_date = timezone.now().date()
+        start_date = end_date - timedelta(days=14)
+        date_labels = [(start_date + timedelta(days=i)).strftime('%d/%m') for i in range(15)]
+        
+        # Busca os dados do banco
+        mov_ultimos_15_dias = MovimentacaoEstoque.objects.filter(data__date__gte=start_date)
 
+        entradas_por_dia = mov_ultimos_15_dias.filter(tipo='ENTRADA') \
+            .annotate(dia_str=models.functions.Cast(models.functions.TruncDay('data'), models.CharField(max_length=10))) \
+            .values('dia_str') \
+            .annotate(count=Count('id'))
+        map_entradas = {item['dia_str'].split(' ')[0]: item['count'] for item in entradas_por_dia}
+
+        saidas_por_dia = mov_ultimos_15_dias.filter(tipo='SAIDA') \
+            .annotate(dia_str=models.functions.Cast(models.functions.TruncDay('data'), models.CharField(max_length=10))) \
+            .values('dia_str') \
+            .annotate(count=Count('id'))
+        map_saidas = {item['dia_str'].split(' ')[0]: item['count'] for item in saidas_por_dia}
+        
+        # Mapeia os dados para a lista de datas garantida
+        data_entradas = [map_entradas.get( (start_date + timedelta(days=i)).strftime('%Y-%m-%d') , 0) for i in range(15)]
+        data_saidas = [map_saidas.get( (start_date + timedelta(days=i)).strftime('%Y-%m-%d') , 0) for i in range(15)]
+
+        # Gráfico 2: Tipos de Movimentação
+        tipos_mov = MovimentacaoEstoque.objects.values('tipo').annotate(count=Count('id')).order_by('tipo')
+
+        # Gráfico 3: Produtos por Categoria
+        prod_por_categoria = Categoria.objects.annotate(num_produtos=Count('produto')).filter(num_produtos__gt=0).order_by('-num_produtos')
+
+        # Gráfico 4: Top 5 Fornecedores com mais produtos
+        top_fornecedores = Fornecedor.objects.annotate(num_produtos=Count('produto')).order_by('-num_produtos')[:5]
+
+        # --- 3. EMPACOTAR DADOS PARA O JAVASCRIPT ---
+        chart_data = {
+            'mov_tempo': {
+                'labels': date_labels,
+                'entradas': data_entradas,
+                'saidas': data_saidas,
+            },
+            'tipos_mov': {
+                'labels': [item['tipo'].capitalize() for item in tipos_mov],
+                'data': [item['count'] for item in tipos_mov],
+            },
+            'prod_cat': {
+                'labels': [cat.nome for cat in prod_por_categoria],
+                'data': [cat.num_produtos for cat in prod_por_categoria],
+            },
+            'top_fornecedores': {
+                'labels': [f.nome for f in top_fornecedores],
+                'data': [f.num_produtos for f in top_fornecedores],
+            }
+        }
+
+        context = {
+            'title': 'Dashboard',
+            'kpi': kpi,
+            'chart_data': chart_data # Passando o dicionário Python diretamente
+        }
+        
+        return render(request, self.template_name, context)
 # # INICIO CRUD MOVIMENTAÇÂO -------------------------
 # class MovimentacaoEstoqueView(LoginRequiredMixin, View):
 #     template_name = 'digistok/movimentacao_estoque.html'

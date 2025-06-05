@@ -48,6 +48,17 @@
                 </div>
                 <div class="row">
                     <div class="col-lg-3 col-md-6 mb-3">
+                        <label for="fornecedor" class="form-label fw-bold">Fornecedor</label>
+                        <select name="fornecedor" id="fornecedor" class="form-select">
+                            <option value="">Todos</option>
+                            {% for f in fornecedores %}
+                            <option value="{{ f.id }}" {% if filtros.fornecedor == f.id|stringformat:"s" %}selected{% endif %}>
+                                {{ f.nome }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-lg-3 col-md-6 mb-3">
                         <label for="data_inicio" class="form-label fw-bold">Data de Início</label>
                         <input type="date" name="data_inicio" id="data_inicio" class="form-control" value="{{ filtros.data_inicio }}">
                     </div>
